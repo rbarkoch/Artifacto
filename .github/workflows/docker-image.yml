@@ -1,0 +1,28 @@
+name: Docker Image CI
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Extract version from tag
+      id: version
+      run: |
+        TAG=${GITHUB_REF#refs/tags/}
+        VERSION=${TAG#v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
+    
+    - name: Build the Docker image
+      run: |
+        docker build . --file ./Deployment/Dockerfile \
+          --tag artifacto:${{ steps.version.outputs.version }} \
+          --tag artifacto:latest
