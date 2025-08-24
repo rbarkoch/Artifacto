@@ -33,7 +33,7 @@ This tool is not suitable for teams that require high security around their bina
     -p 443:443 \
     -v artifacto-data:/data \
     -v artifacto-certs:/certs \
-    artifacto:latest // TODO: Update url.
+    ghcr.io/rbarkoch/artifacto:latest
   ```
   This will start Artifacto and make the web interface available at [http://localhost:80](http://localhost:80) or [https://localhost:443](http://localhost:443).
 
@@ -43,7 +43,7 @@ This tool is not suitable for teams that require high security around their bina
    version: '3.8'
    services:
      artifacto:
-       image: artifacto:latest  # Will be available on DockerHub soon
+       image: ghcr.io/rbarkoch/artifacto:latest
        ports:
          - "80:80"
          - "443:443"
