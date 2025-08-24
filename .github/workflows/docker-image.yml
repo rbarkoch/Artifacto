@@ -1,5 +1,9 @@
 name: Docker Image CI
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
     tags:
@@ -9,6 +13,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: artifacto
 
     steps:
     - uses: actions/checkout@v4
@@ -20,9 +27,26 @@ jobs:
         VERSION=${TAG#v}
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "tag=$TAG" >> $GITHUB_OUTPUT
-    
-    - name: Build the Docker image
+
+    - name: Lowercase owner
+      id: repo
       run: |
-        docker build . --file ./Deployment/Dockerfile \
-          --tag artifacto:${{ steps.version.outputs.version }} \
-          --tag artifacto:latest
+        OWNER_LC=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+        echo "owner=${OWNER_LC}" >> "$GITHUB_OUTPUT"
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push to GHCR
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Deployment/Dockerfile
+        push: true
+        tags: |
+          ghcr.io/${{ steps.repo.outputs.owner }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
+          ghcr.io/${{ steps.repo.outputs.owner }}/${{ env.IMAGE_NAME }}:latest
