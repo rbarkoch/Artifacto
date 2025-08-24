@@ -1,0 +1,10 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <NoWarn>CS1998</NoWarn>
+  </PropertyGroup>
+
+</Project>

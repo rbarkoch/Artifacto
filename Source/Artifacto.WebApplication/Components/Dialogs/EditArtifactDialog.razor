@@ -1,0 +1,63 @@
+@namespace Artifacto.WebApplication.Components.Dialogs
+@using Artifacto.Client
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="Icons.Material.Filled.Edit" Class="mr-3 mb-n1" />
+            Edit Artifact Version
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <EditForm @ref="_form" Model="@_model" OnValidSubmit="@OnValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            
+            <MudStack Spacing="3">
+                <MudTextField @bind-Value="_model.CurrentVersion"
+                              Label="Current Version"
+                              Variant="Variant.Outlined"
+                              ReadOnly="true"
+                              HelperText="This is the current version of the artifact" />
+                              
+                <MudTextField @bind-Value="_model.NewVersion"
+                              Label="New Version"
+                              Placeholder="e.g., 1.0.1"
+                              Variant="Variant.Outlined"
+                              For="@(() => _model.NewVersion)"
+                              Immediate="true"
+                              Required="true"
+                              HelperText="Enter the new version number for this artifact" />
+            </MudStack>
+            
+            @if (_hasError)
+            {
+                <MudAlert Severity="Severity.Error" Class="mt-4">
+                    @_errorMessage
+                </MudAlert>
+            }
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+        @if (_isSubmitting)
+        {
+            <MudButton Disabled="true">
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Updating...</MudText>
+            </MudButton>
+        }
+        else
+        {
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" 
+                       Variant="Variant.Filled" 
+                       OnClick="@HandleSubmit"
+                       Disabled="@(string.IsNullOrWhiteSpace(_model.NewVersion) || _model.NewVersion == _model.CurrentVersion)">
+                Update Version
+            </MudButton>
+        }
+    </DialogActions>
+</MudDialog>

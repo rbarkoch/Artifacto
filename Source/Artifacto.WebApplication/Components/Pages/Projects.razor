@@ -1,0 +1,133 @@
+﻿@page "/projects"
+@using MudBlazor
+
+<PageTitle>Artifacto - Projects</PageTitle>
+
+<div class="ma-8">
+    <MudText Typo="Typo.h3" GutterBottom="true">Projects</MudText>
+    <MudText Class="mb-8">Manage artifacts for your software projects.</MudText>
+
+    @if (!_isLoading && _projects.Any())
+    {
+        <MudTextField @bind-Value="_searchTerm"
+                      DebounceInterval="300"
+                      OnDebounceIntervalElapsed="OnSearchTermChanged"
+                      Placeholder="Search projects by name..."
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Class="mb-6"
+                      Clearable="true"
+                      OnClearButtonClick="@(() => OnSearchTermChanged(string.Empty))" />
+    }
+
+    @if (_isLoading)
+    {
+        <div class="d-flex justify-center align-center" style="min-height: 200px;">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
+    else if (!FilteredProjects.Any())
+    {
+        @if (string.IsNullOrWhiteSpace(_searchTerm))
+        {
+            <div class="d-flex flex-column justify-center align-center" style="min-height: 200px;">
+                <MudIcon Icon="Icons.Material.Filled.Folder" Size="Size.Large" Color="Color.Default" Class="mb-4" />
+                <MudText Typo="Typo.h6" Color="Color.Default">No projects found</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Default">Create your first project to get started.</MudText>
+                <MudButton Color="Color.Default"
+                           Variant="Variant.Outlined"
+                           OnClick="@OpenCreateProjectDialog"
+                           StartIcon="@Icons.Material.Filled.Add"
+                           Class="mt-6 px-6 py-2">
+                    New Project
+                </MudButton>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex flex-column justify-center align-center" style="min-height: 200px;">
+                <MudIcon Icon="Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Default" Class="mb-4" />
+                <MudText Typo="Typo.h6" Color="Color.Default">No projects match your search</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Default">Try a different search term or clear the search to see all projects.</MudText>
+            </div>
+        }
+    }
+    else
+    {
+        <MudGrid>
+            @foreach(var project in FilteredProjects)
+            {    
+                <MudItem xs="12" 
+                         sm="6" 
+                         md="4" 
+                         lg="3">
+                    <MudCard Elevation="4" 
+                             Class="pa-4 cursor-pointer" 
+                             Style="height: 240px;"
+                             @onclick="@(() => NavigateToProject(project.Id))">
+                        <MudCardContent Class="pa-0">
+                            <MudStack Justify="Justify.SpaceBetween" Style="height: 100%;">
+                                <!-- Title and Description -->
+                                <MudStack Spacing="1">
+                                    <MudText Typo="Typo.h6">
+                                        <MudHighlighter Text="@project.Name"
+                                                      HighlightedText="@_searchTerm"
+                                                      CaseSensitive="false" />
+                                    </MudText>
+                                    <MudText Typo="Typo.body2">@project.Description</MudText>
+                                </MudStack>
+                                
+                                <!-- Project Details and Arrow -->
+                                <MudStack Spacing="2">
+                                    <MudText Typo="Typo.caption" Color="Color.Default">
+                                        @project.ArtifactCount artifact@(project.ArtifactCount == 1 ? "" : "s")
+                                    </MudText>
+                                    @if (!string.IsNullOrEmpty(project.LatestStableVersion))
+                                    {
+                                        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                            <MudText Typo="Typo.caption" Color="Color.Success">
+                                                Stable: @project.LatestStableVersion
+                                            </MudText>
+                                            @if (project.LatestStableVersionUploadDate.HasValue)
+                                            {
+                                                <MudText Typo="Typo.caption" Color="Color.Default">
+                                                    @project.LatestStableVersionUploadDate.Value.ToString("MMM dd, yyyy")
+                                                </MudText>
+                                            }
+                                        </MudStack>
+                                    }
+                                    @if (!string.IsNullOrEmpty(project.LatestVersion) && project.LatestVersion != project.LatestStableVersion)
+                                    {
+                                        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                            <MudText Typo="Typo.caption" Color="Color.Info">
+                                                Latest: @project.LatestVersion
+                                            </MudText>
+                                            @if (project.LatestVersionUploadDate.HasValue)
+                                            {
+                                                <MudText Typo="Typo.caption" Color="Color.Default">
+                                                    @project.LatestVersionUploadDate.Value.ToString("MMM dd, yyyy")
+                                                </MudText>
+                                            }
+                                        </MudStack>
+                                    }
+                                    @if (string.IsNullOrEmpty(project.LatestVersion))
+                                    {
+                                        <MudText Typo="Typo.caption" Color="Color.Default">
+                                            No versions
+                                        </MudText>
+                                    }
+                                </MudStack>
+                            </MudStack>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+
+    @if (_projects.Any()) {
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+            Style="position: fixed; bottom: 20px; right: 20px;" Label="New Project" 
+            OnClick="@OpenCreateProjectDialog" />
+    }
+</div>

@@ -1,0 +1,1 @@
+dotnet build "$PSScriptRoot/Source/Artifacto.sln"

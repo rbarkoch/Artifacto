@@ -1,0 +1,93 @@
+@hostAddress = http://localhost:8080
+@projectId = test-project-1
+@updatedProjectId = updated-test-project-1
+@artifactVersion = 1.0.0
+
+### Get all projects
+GET {{hostAddress}}/projects
+Accept: application/json
+
+### Create a new project
+POST {{hostAddress}}/projects
+Accept: application/json
+Content-Type: application/json
+
+{
+  "id": "{{projectId}}",
+  "name": "Test Project",
+  "description": "A test project for API validation"
+}
+
+### Get specific project
+GET {{hostAddress}}/projects/{{projectId}}
+Accept: application/json
+
+### Update project
+PUT {{hostAddress}}/projects/{{projectId}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "id": "{{updatedProjectId}}",
+  "name": "Updated Test Project",
+  "description": "An updated test project description"
+}
+
+### Get project artifacts
+GET {{hostAddress}}/projects/{{projectId}}/artifacts
+Accept: application/json
+
+### Create a new artifact
+POST {{hostAddress}}/projects/{{projectId}}/artifacts
+Accept: application/json
+Content-Type: application/json
+
+{
+  "version": "{{artifactVersion}}",
+  "description": "Initial release artifact",
+  "retained": false,
+  "locked": false
+}
+
+### Get specific artifact
+GET {{hostAddress}}/projects/{{projectId}}/artifacts/{{artifactVersion}}
+Accept: application/json
+
+### Update artifact
+PUT {{hostAddress}}/projects/{{projectId}}/artifacts/{{artifactVersion}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "version": "{{artifactVersion}}",
+  "description": "Updated artifact description",
+  "retained": true,
+  "locked": false
+}
+
+### Download artifact
+GET {{hostAddress}}/projects/{{projectId}}/artifacts/{{artifactVersion}}/download
+Accept: application/octet-stream
+
+### Delete artifact
+DELETE {{hostAddress}}/projects/{{projectId}}/artifacts/{{artifactVersion}}
+
+### Delete project
+DELETE {{hostAddress}}/projects/{{projectId}}
+
+### Test error cases - Get non-existent project
+GET {{hostAddress}}/projects/non-existent-project
+Accept: application/json
+
+### Test error cases - Create project with invalid ID
+POST {{hostAddress}}/projects
+Accept: application/json
+Content-Type: application/json
+
+{
+  "id": "Invalid_Project_ID!",
+  "name": "Invalid Project",
+  "description": "Project with invalid ID pattern"
+}
+
+###

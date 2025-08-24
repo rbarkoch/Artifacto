@@ -1,0 +1,100 @@
+/* Modern Typography Styles */
+:root {
+    --primary-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --heading-font: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Apply modern fonts globally */
+body,
+.mud-typography,
+.mud-typography-body1,
+.mud-typography-body2,
+.mud-input-label,
+.mud-input-text,
+.mud-button-text,
+.mud-menu-item,
+.mud-list-item {
+    font-family: var(--primary-font) !important;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Modern headings with Poppins */
+.mud-typography-h1,
+.mud-typography-h2,
+.mud-typography-h3,
+.mud-typography-h4,
+.mud-typography-h5,
+.mud-typography-h6 {
+    font-family: var(--heading-font) !important;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+/* Enhanced subtitle styling */
+.mud-typography-subtitle1,
+.mud-typography-subtitle2 {
+    font-family: var(--heading-font) !important;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+}
+
+/* Modern button styling */
+.mud-button {
+    font-family: var(--primary-font) !important;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+/* Card and component refinements */
+.mud-card {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.mud-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Modern input styling */
+.mud-input-outlined .mud-input-outlined-border {
+    border-radius: 8px;
+}
+
+.mud-button-filled {
+    border-radius: 8px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* App bar styling */
+.mud-appbar {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* Data grid modern styling */
+.mud-table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.mud-table-head .mud-table-cell {
+    font-family: var(--heading-font) !important;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+/* Progress indicators */
+.mud-progress-linear,
+.mud-progress-circular {
+    border-radius: 4px;
+}
+
+/* Icon buttons */
+.mud-icon-button {
+    border-radius: 8px;
+}

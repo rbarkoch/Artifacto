@@ -1,0 +1,61 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/dotnet
+{
+	"name": "Artifacto",
+
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [
+		80,
+		443,
+		8080,
+		8443
+	],
+	"portsAttributes": {
+		"80": {
+			"protocol": "http"
+		},
+		"443": {
+			"protocol": "https"
+		},
+		"8080": {
+			"protocol": "http"
+		},
+		"8443": {
+			"protocol": "https"
+		}
+	},
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "pwsh"
+			},
+			"extensions": [
+				"mhutchie.git-graph",
+				"ms-dotnettools.csdevkit",
+				"ms-dotnettools.csharp",
+				"gruntfuggly.todo-tree",
+				"ms-azuretools.vscode-docker",
+				"ms-vscode.powershell",
+				"42crunch.vscode-openapi",
+				"redhat.vscode-xml",
+				"hediet.vscode-drawio",
+				"humao.rest-client"
+			]
+		}
+	},
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "root",
+	"mounts": [
+		"source=${localEnv:HOME}/.gitconfig,target=/root/.gitconfig,type=bind,consistency=cached"
+	]
+}

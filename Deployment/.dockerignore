@@ -1,0 +1,64 @@
+# .NET build artifacts
+**/bin/
+**/obj/
+**/out/
+
+# IDE and editor files
+.vs/
+.vscode/
+*.swp
+*.tmp
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation and other non-essential files
+Documentation/
+README.md
+*.md
+!DEVELOPMENT.md
+!DOCKER.md
+
+# Configuration files that should be included
+!nginx.conf
+!supervisord.conf
+!appsettings.*.json
+
+# Build and run scripts (they won't work in container context)
+Build-Solution.ps1
+Run-Solution.ps1
+Format-Solution.ps1
+
+# Docker files (except the main one)
+Source/*/Dockerfile
+docker-compose.yml
+
+# Logs
+logs/
+*.log
+
+# Test files
+**/*Tests/
+**/*.Test/
+
+# Package files
+*.nupkg
+*.snupkg
+
+# Node modules (if any)
+node_modules/
+
+# Temporary files
+tmp/
+temp/

@@ -1,0 +1,94 @@
+@namespace Artifacto.WebApplication.Components.Dialogs
+@using Artifacto.Client
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="Icons.Material.Filled.Upload" Class="mr-3 mb-n1" />
+            Upload New Artifact
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <EditForm @ref="_form" Model="@_model" OnValidSubmit="@OnValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            
+            <MudStack Spacing="3">
+                <MudTextField @bind-Value="_model.Version"
+                              Label="Version"
+                              Placeholder="e.g., 1.0.0"
+                              Variant="Variant.Outlined"
+                              For="@(() => _model.Version)"
+                              Immediate="true"
+                              Required="true" />
+                <MudStack Spacing="2">
+                    <MudButton HtmlTag="label"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="Icons.Material.Filled.CloudUpload"
+                               for="fileInput">
+                        Select Artifact File
+                    </MudButton>
+                    <InputFile id="fileInput" OnChange="OnFileSelected" style="display: none;" />
+                    @if (_selectedFile != null)
+                    {
+                        <MudText Typo="Typo.body2">Selected: @_selectedFile.Name (@(FormatFileSize(_selectedFile.Size)))</MudText>
+                    }
+                </MudStack>
+            </MudStack>
+            
+            @if (_isUploading)
+            {
+                <MudStack Spacing="2" Class="mt-4">
+                    <MudProgressLinear Color="Color.Primary" 
+                                       Value="@_uploadProgress" 
+                                       Buffer="false" 
+                                       Striped="true" 
+                                       Size="Size.Medium" />
+                    <MudText Typo="Typo.body2" Align="Align.Center">
+                        @_uploadStatus (@(_uploadProgress.ToString("F0"))%)
+                    </MudText>
+                </MudStack>
+            }
+            
+            @if (_hasError)
+            {
+                <MudAlert Severity="Severity.Error" Class="mt-4">
+                    @_errorMessage
+                </MudAlert>
+            }
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+        @if (_isUploading)
+        {
+            <MudButton OnClick="@(async () => await CancelUpload())" 
+                       Color="Color.Error"
+                       Variant="Variant.Text">
+                Cancel Upload
+            </MudButton>
+        }
+        else
+        {
+            <MudButton OnClick="@(async () => await Cancel())">Cancel</MudButton>
+            <MudButton Color="Color.Primary" 
+                       Variant="Variant.Filled" 
+                       OnClick="@HandleSubmit"
+                       Disabled="@(string.IsNullOrWhiteSpace(_model.Version) || _selectedFile == null)">
+                Upload
+            </MudButton>
+        }
+        
+        @if (_isUploading)
+        {
+            <MudButton Color="Color.Primary" 
+                       Variant="Variant.Filled" 
+                       Disabled="true">
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Uploading...</MudText>
+            </MudButton>
+        }
+    </DialogActions>
+</MudDialog>

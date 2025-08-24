@@ -1,0 +1,715 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Artifacto API",
+    "description": "API for managing projects and artifacts in Artifacto.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/projects": {
+      "get": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "List all projects",
+        "description": "Retrieves a list of all projects.",
+        "operationId": "GetProjects",
+        "responses": {
+          "200": {
+            "description": "List of projects retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectsGetResponse"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Create a new project",
+        "description": "Creates a new project with the provided details.",
+        "operationId": "PostProject",
+        "requestBody": {
+          "description": "Project to create",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectPostRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Project created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectPostResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/projects/{projectKey}": {
+      "parameters": [
+        {
+          "name": "projectKey",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Get project details",
+        "description": "Retrieves project details by projectId.",
+        "operationId": "GetProject",
+        "responses": {
+          "200": {
+            "description": "Project details retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectGetResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Update a project",
+        "description": "Updates an existing project's details.",
+        "operationId": "PutProject",
+        "requestBody": {
+          "description": "Updated project information",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectPutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Project updated successfully."
+          },
+          "400": {
+            "description": "Invalid input."
+          },
+          "404": {
+            "description": "Project not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Delete a project",
+        "description": "Deletes a project by projectId.",
+        "operationId": "DeleteProject",
+        "responses": {
+          "204": {
+            "description": "Project deleted successfully."
+          },
+          "404": {
+            "description": "Project not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/projects/{projectId}/artifacts": {
+      "parameters": [
+        {
+          "name": "projectId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "List artifacts in a project",
+        "description": "Retrieves a list of artifacts for the given project.",
+        "operationId": "GetProjectArtifacts",
+        "responses": {
+          "200": {
+            "description": "List of artifacts retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectArtifactsGetResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/projects/{projectKey}/artifacts/{artifactVersion}": {
+      "parameters": [
+        {
+          "name": "projectKey",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "artifactVersion",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "Get artifact details",
+        "description": "Retrieves details of a specific artifact.",
+        "operationId": "GetArtifact",
+        "responses": {
+          "200": {
+            "description": "Artifact details retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactGetResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Artifact or project not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "Update an artifact",
+        "description": "Updates an existing artifact's details.",
+        "operationId": "PutArtifact",
+        "requestBody": {
+          "description": "Updated artifact data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArtifactPutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Artifact updated successfully."
+          },
+          "400": {
+            "description": "Invalid input."
+          },
+          "404": {
+            "description": "Artifact or project not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "Delete an artifact",
+        "description": "Deletes a specific artifact from a project.",
+        "operationId": "DeleteArtifact",
+        "responses": {
+          "204": {
+            "description": "Artifact deleted successfully."
+          },
+          "404": {
+            "description": "Artifact or project not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "Upload a new artifact",
+        "description": "Uploads a new artifact for a specific project.",
+        "operationId": "PostArtifact",
+        "requestBody": {
+          "description": "Artifact upload data",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ArtifactPostRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Artifact uploaded successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactPostResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input."
+          },
+          "404": {
+            "description": "Project not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/projects/{projectKey}/artifacts/{artifactVersion}/download": {
+      "get": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "Download an artifact",
+        "description": "Retrieves the binary content of the specified artifact.",
+        "operationId": "DownloadArtifact",
+        "parameters": [
+          {
+            "name": "projectKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "artifactVersion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Artifact downloaded successfully.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Artifact or project not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "description": "Error response details.",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Error message."
+          }
+        }
+      },
+      "ProjectsGetResponse": {
+        "type": "object",
+        "description": "Project details for listing projects.",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "artifactCount": {
+            "type": "integer",
+            "description": "Number of artifacts in this project.",
+            "format": "int32"
+          },
+          "latestStableVersion": {
+            "type": "string",
+            "description": "Latest stable (non-prerelease) version of artifacts in this project.",
+            "nullable": true
+          },
+          "latestVersion": {
+            "type": "string",
+            "description": "Latest version (including prerelease) of artifacts in this project.",
+            "nullable": true
+          },
+          "latestStableVersionUploadDate": {
+            "type": "string",
+            "description": "Upload date of the latest stable version, if available.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "latestVersionUploadDate": {
+            "type": "string",
+            "description": "Upload date of the latest version, if available.",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "ProjectPostRequest": {
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Unique project identifier.",
+            "pattern": "^[a-z0-9]+(-?[a-z0-9]+)*$"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable project name.",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Project description.",
+            "nullable": true
+          }
+        }
+      },
+      "ProjectGetResponse": {
+        "type": "object",
+        "description": "Response with project details.",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "latestStableVersion": {
+            "type": "string",
+            "description": "Latest stable (non-prerelease) version of artifacts in this project.",
+            "nullable": true
+          },
+          "latestVersion": {
+            "type": "string",
+            "description": "Latest version (including prerelease) of artifacts in this project.",
+            "nullable": true
+          },
+          "latestStableVersionUploadDate": {
+            "type": "string",
+            "description": "Upload date of the latest stable version, if available.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "latestVersionUploadDate": {
+            "type": "string",
+            "description": "Upload date of the latest version, if available.",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "ProjectPutRequest": {
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Unique project identifier.",
+            "pattern": "^[a-z0-9]+(-?[a-z0-9]+)*$"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable project name.",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Project description.",
+            "nullable": true
+          }
+        }
+      },
+      "ProjectArtifactsGetResponse": {
+        "type": "object",
+        "description": "Artifact details for listing artifacts.",
+        "properties": {
+          "projectKey": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp of creation or last modification.",
+            "format": "date-time"
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Name of the artifact file."
+          },
+          "fileSizeBytes": {
+            "type": "integer",
+            "description": "Size of the artifact file in bytes.",
+            "format": "int64"
+          },
+          "sha256Hash": {
+            "type": "string",
+            "description": "SHA256 hash of the artifact file."
+          },
+          "retained": {
+            "type": "boolean"
+          },
+          "locked": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ArtifactPostRequest": {
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "description": "The artifact file to upload.",
+            "format": "binary"
+          }
+        }
+      },
+      "ArtifactGetResponse": {
+        "type": "object",
+        "description": "Response with artifact details.",
+        "properties": {
+          "projectKey": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Artifact timestamp.",
+            "format": "date-time"
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Name of the uploaded artifact file."
+          },
+          "fileSizeBytes": {
+            "type": "integer",
+            "description": "Size of the uploaded artifact file in bytes.",
+            "format": "int64"
+          },
+          "sha256Hash": {
+            "type": "string",
+            "description": "SHA256 hash of the artifact file."
+          },
+          "retained": {
+            "type": "boolean"
+          },
+          "locked": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ArtifactPutRequest": {
+        "type": "object",
+        "required": [
+          "version"
+        ],
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "Artifact version identifier."
+          },
+          "retained": {
+            "type": "boolean",
+            "description": "If the artifact should be retained indefinitely.",
+            "default": "false"
+          },
+          "locked": {
+            "type": "boolean",
+            "description": "If the artifact is locked for modifications.",
+            "default": "false"
+          }
+        }
+      },
+      "ProjectPostResponse": {
+        "type": "object",
+        "description": "Response when a project is created.",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ArtifactPostResponse": {
+        "type": "object",
+        "description": "Response when an artifact is uploaded.",
+        "properties": {
+          "projectKey": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Artifact timestamp.",
+            "format": "date-time"
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Name of the uploaded artifact file."
+          },
+          "fileSizeBytes": {
+            "type": "integer",
+            "description": "Size of the uploaded artifact file in bytes.",
+            "format": "int64"
+          },
+          "sha256Hash": {
+            "type": "string",
+            "description": "SHA256 hash of the artifact file."
+          },
+          "retained": {
+            "type": "boolean"
+          },
+          "locked": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

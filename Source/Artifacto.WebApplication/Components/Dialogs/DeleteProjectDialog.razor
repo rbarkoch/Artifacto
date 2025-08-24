@@ -1,0 +1,62 @@
+@namespace Artifacto.WebApplication.Components.Dialogs
+@using MudBlazor
+@using Artifacto.Client
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="Icons.Material.Filled.Warning" Color="Color.Error" Class="mr-3 mb-n1" />
+            Delete project?
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudAlert Severity="Severity.Warning">
+                <strong>Warning:</strong> This action cannot be undone!
+            </MudAlert>
+            
+            <MudText>
+                Are you sure you want to delete the project <strong>@ProjectName</strong>?
+            </MudText>
+            
+            <MudText Color="Color.Error">
+                This will permanently delete:
+            </MudText>
+            <MudList T="string" Dense="true">
+                <MudListItem T="string" Icon="Icons.Material.Filled.DeleteForever" IconColor="Color.Error">
+                    The project and all its settings
+                </MudListItem>
+                <MudListItem T="string" Icon="Icons.Material.Filled.DeleteForever" IconColor="Color.Error">
+                    All artifacts in this project
+                </MudListItem>
+                <MudListItem T="string" Icon="Icons.Material.Filled.DeleteForever" IconColor="Color.Error">
+                    All uploaded files and data
+                </MudListItem>
+            </MudList>
+            
+            @if (_hasError)
+            {
+                <MudAlert Severity="Severity.Error" Class="mt-4">
+                    @_errorMessage
+                </MudAlert>
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Disabled="@_isDeleting">Cancel</MudButton>
+        <MudButton Color="Color.Error" 
+                   Variant="Variant.Filled" 
+                   OnClick="@ConfirmDelete"
+                   Disabled="@_isDeleting">
+            @if (_isDeleting)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Deleting...</MudText>
+            }
+            else
+            {
+                <MudText>Delete</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>

@@ -1,0 +1,73 @@
+@namespace Artifacto.WebApplication.Components.Dialogs
+@using Artifacto.Client
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="Icons.Material.Filled.Edit" Class="mr-3 mb-n1" />
+            Edit Project
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <EditForm @ref="_form" Model="@_model" OnValidSubmit="@OnValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_model.Id"
+                                  Label="Project ID"
+                                  Placeholder="my-awesome-project"
+                                  HelperText="Unique identifier (lowercase letters, numbers, and hyphens only)"
+                                  For="@(() => _model.Id)"
+                                  Immediate="true"
+                                  Required="true" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_model.Name"
+                                  Label="Project Name"
+                                  Placeholder="My Awesome Project"
+                                  HelperText="Human-readable name for your project"
+                                  For="@(() => _model.Name)"
+                                  Immediate="true" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_model.Description"
+                                  Label="Description"
+                                  Placeholder="A brief description of your project..."
+                                  Lines="3"
+                                  HelperText="Optional description of what this project is about"
+                                  For="@(() => _model.Description)"
+                                  Immediate="true" />
+                </MudItem>
+            </MudGrid>
+            
+            @if (_hasError)
+            {
+                <MudAlert Severity="Severity.Error" Class="mt-4">
+                    @_errorMessage
+                </MudAlert>
+            }
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" 
+                   Variant="Variant.Filled" 
+                   OnClick="@HandleSubmit"
+                   Disabled="@_isSubmitting">
+            @if (_isSubmitting)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Updating...</MudText>
+            }
+            else
+            {
+                <MudText>Update Project</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>

@@ -1,0 +1,137 @@
+﻿@page "/projects/{ProjectId}/artifacts"
+@using MudBlazor
+
+<PageTitle>@_projectName - Artifacto</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudStack Spacing="4">
+        <!-- Back Button -->
+        <MudButton Variant="Variant.Text" 
+                   Color="Color.Primary" 
+                   StartIcon="@Icons.Material.Filled.ArrowBack"
+                   OnClick="NavigateToProjects"
+                   Class="align-self-start">
+            Projects
+        </MudButton>
+
+        <!-- Project Header -->
+        <MudPaper Class="pa-4">
+            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                <MudStack>
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                        <MudText Typo="Typo.h3">@_projectName</MudText>
+                        <MudMenu Icon="@Icons.Material.Filled.MoreVert" 
+                                 AnchorOrigin="Origin.BottomLeft" 
+                                 TransformOrigin="Origin.TopLeft"
+                                 Dense="true">
+                            <MudMenuItem Icon="@Icons.Material.Filled.Edit" 
+                                         OnClick="EditProject">
+                                Edit Project
+                            </MudMenuItem>
+                            <MudDivider />
+                            <MudMenuItem Icon="@Icons.Material.Filled.Delete" 
+                                         IconColor="Color.Error"
+                                         OnClick="DeleteProject">
+                                Delete Project
+                            </MudMenuItem>
+                        </MudMenu>
+                    </MudStack>
+                    <MudText Typo="Typo.body1">@_projectDescription</MudText>
+                </MudStack>
+                <MudStack Row Spacing="2">
+                    <MudButton Variant="Variant.Filled" 
+                               Color="Color.Primary" 
+                               StartIcon="@Icons.Material.Filled.Upload"
+                               OnClick="ShowUploadModal">
+                        Upload New Artifact
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled" 
+                               Color="Color.Success" 
+                               StartIcon="@Icons.Material.Filled.Download"
+                               OnClick="DownloadLatestStable"
+                               Disabled="@(string.IsNullOrEmpty(_latestStableVersion))">
+                        Download Latest Stable
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" 
+                               Color="Color.Success" 
+                               StartIcon="@Icons.Material.Filled.Download"
+                               OnClick="DownloadLatest"
+                               Disabled="@(string.IsNullOrEmpty(_latestVersion))">
+                        Download Latest
+                    </MudButton>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+
+        <!-- Artifacts Table -->
+        <MudPaper>
+            <MudToolBar>
+                <MudText Typo="Typo.h6">Artifact Versions</MudText>
+            </MudToolBar>
+
+            @if (_isLoading)
+            {
+                <MudContainer Class="pa-8">
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudProgressCircular Indeterminate="true" />
+                        <MudText>Loading...</MudText>
+                    </MudStack>
+                </MudContainer>
+            }
+            else if (!_hasArtifacts)
+            {
+                <MudContainer Class="pa-8">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="3">
+                        <MudIcon Icon="Icons.Material.Filled.Inbox" Size="Size.Large" />
+                        <MudText Typo="Typo.h6">No artifacts yet</MudText>
+                        <MudText>Upload your first artifact to get started.</MudText>
+                    </MudStack>
+                </MudContainer>
+            }
+            else
+            {
+                <MudDataGrid Items="@_artifacts" Hover="true" Striped="true">
+                    <Columns>
+                        <PropertyColumn Property="x => x.Version" Title="Version">
+                            <CellTemplate>
+                                <MudText Typo="Typo.subtitle2">@context.Item.Version</MudText>
+                            </CellTemplate>
+                        </PropertyColumn>
+                        <PropertyColumn Property="x => x.FileName" Title="File Name">
+                            <CellTemplate>
+                                <MudText>@context.Item.FileName</MudText>
+                            </CellTemplate>
+                        </PropertyColumn>
+                        <PropertyColumn Property="x => x.UploadDate" Title="Upload Date">
+                            <CellTemplate>
+                                <MudText>@context.Item.UploadDate.ToString("MMM dd, yyyy HH:mm")</MudText>
+                            </CellTemplate>
+                        </PropertyColumn>
+                        <PropertyColumn Property="x => x.FileSize" Title="File Size" />
+                        <TemplateColumn Title="Actions" Sortable="false">
+                            <CellTemplate>
+                                <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Download" 
+                                                   Color="Color.Primary"
+                                                   OnClick="() => DownloadArtifact(context.Item.Version)"
+                                                   title="Download artifact" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                                   Color="Color.Warning"
+                                                   OnClick="() => EditArtifact(context.Item.Version)"
+                                                   title="Edit version" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                                   Color="Color.Error"
+                                                   OnClick="() => DeleteArtifact(context.Item.Version)"
+                                                   title="Delete artifact" />
+                                </MudButtonGroup>
+                            </CellTemplate>
+                        </TemplateColumn>
+                    </Columns>
+                    <PagerContent>
+                        <MudDataGridPager T="ArtifactRow" />
+                    </PagerContent>
+                </MudDataGrid>
+            }
+        </MudPaper>
+    </MudStack>
+</MudContainer>

@@ -1,0 +1,201 @@
+root = true
+
+# MARK: ALL FILES
+[*]
+indent_style = space
+
+# MARK: XML
+[*.xml]
+indent_size = 2
+
+# MARK: C#
+[*.cs]
+
+
+# ===== REQUIRED STYLING ===== #
+
+# -- FILE FORMATTING -- #
+
+# Indents are 4 spaces.
+indent_size = 4
+
+# Tabs are 4 spaces.
+tab_width = 4
+
+# Use windows endlines.
+end_of_line = crlf
+
+# Include a final newline in file.
+insert_final_newline = true
+
+# Usings should have system directives on top.
+dotnet_sort_system_directives_first = true
+
+# Usings should be separated into groups.
+dotnet_separate_import_directive_groups = true
+
+# File headers are not required.
+file_header_template = unset
+
+
+
+# ===== CODING CONVENTIONS ===== #
+
+# There should be no unused using statements.
+dotnet_diagnostic.IDE0005.severity = error
+
+# Null propagation operator should be used over ternary operators.
+dotnet_style_null_propagation = true:error
+
+# Null coalescing operator should be used over ternary operators.
+dotnet_style_coalesce_expression = true:error
+
+# Multi-line conditions should have the operator placed at the beginning of line.
+dotnet_style_operator_placement_when_wrapping = beginning_of_line:error
+
+# Properties should always use auto properties syntax.
+dotnet_style_prefer_auto_properties = true:error
+
+# Null checks should use 'is' instead of overridable '==' operator.
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:error
+
+# Boolean expressions should be used directly instead of passing 'true' or 'false' indirectly.
+dotnet_style_prefer_simplified_boolean_expressions = true:error
+
+# Interpolated strings shouldn't have ToString() in the interpolated values.
+dotnet_style_prefer_simplified_interpolation = true:error
+
+# Collection expressions should be used where possible.
+dotnet_style_prefer_collection_expression = true:error
+
+# Don't use var.
+csharp_style_var_elsewhere = false:error
+csharp_style_var_for_built_in_types = false:error
+csharp_style_var_when_type_is_apparent = false:error
+
+# Lambdas should use expression bodies where possible.
+csharp_style_expression_bodied_lambdas = true:error
+
+# Use pattern matching instead of 'is' following by cast.
+csharp_style_pattern_matching_over_is_with_cast_check = true:error
+
+# Use switch expressions over switch statements.
+csharp_style_prefer_switch_expression = true:error
+
+# Follow conventions when ordering modifiers.
+csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:error
+
+# Always use braces.
+csharp_prefer_braces = true:error
+
+# Always simplify default expressions.
+csharp_prefer_simple_default_expression = true:error
+
+# Always use local functions over lambdas.
+csharp_style_pattern_local_over_anonymous_function = true:error
+
+# Always specify the type before and after the variable.
+csharp_style_implicit_object_creation_when_type_is_apparent = true:error
+
+# Don't use primary constructors.
+csharp_style_prefer_primary_constructors = false:error
+
+# Always put using statements outside the namespace.
+csharp_using_directive_placement = outside_namespace:error
+
+# Always use file scoped namespace declarations.
+csharp_style_namespace_declarations = file_scoped:error
+
+# Never inline statements.
+csharp_preserve_single_line_statements = false:error
+
+# -- NAMING CONVENTIONS -- #
+# Types and Namespaces should be PascalCase.
+dotnet_naming_rule.types_and_namespaces_should_be_pascalcase.severity = error
+dotnet_naming_rule.types_and_namespaces_should_be_pascalcase.symbols = types_and_namespaces
+dotnet_naming_rule.types_and_namespaces_should_be_pascalcase.style = pascalcase
+
+# Interfaces should be IPascalCase
+dotnet_naming_rule.interfaces_should_be_ipascalcase.severity = error
+dotnet_naming_rule.interfaces_should_be_ipascalcase.symbols = interfaces
+dotnet_naming_rule.interfaces_should_be_ipascalcase.style = ipascalcase
+
+# Methods should be PascalCase.
+dotnet_naming_rule.methods_should_be_pascalcase.severity = error
+dotnet_naming_rule.methods_should_be_pascalcase.symbols = methods
+dotnet_naming_rule.methods_should_be_pascalcase.style = pascalcase
+
+# Properties should be PascalCase.
+dotnet_naming_rule.properties_should_be_pascalcase.severity = error
+dotnet_naming_rule.properties_should_be_pascalcase.symbols = properties
+dotnet_naming_rule.properties_should_be_pascalcase.style = pascalcase
+
+# Events should be PascalCase.
+dotnet_naming_rule.events_should_be_pascalcase.severity = error
+dotnet_naming_rule.events_should_be_pascalcase.symbols = events
+dotnet_naming_rule.events_should_be_pascalcase.style = pascalcase
+
+# Local variable should be camelCase.
+dotnet_naming_rule.local_variables_should_be_camelcase.severity = error
+dotnet_naming_rule.local_variables_should_be_camelcase.symbols = local_variables
+dotnet_naming_rule.local_variables_should_be_camelcase.style = camelcase
+
+# Parameters should be camelCase.
+dotnet_naming_rule.parameters_should_be_camelcase.severity = error
+dotnet_naming_rule.parameters_should_be_camelcase.symbols = parameters
+dotnet_naming_rule.parameters_should_be_camelcase.style = camelcase
+
+# Private fields should be _camelCase.
+dotnet_naming_rule.private_fields_should_be__camelcase.severity = error
+dotnet_naming_rule.private_fields_should_be__camelcase.symbols = private_fields
+dotnet_naming_rule.private_fields_should_be__camelcase.style = _camelcase
+
+# Enums should be PascalCase.
+dotnet_naming_rule.enums_should_be_pascalcase.severity = error
+dotnet_naming_rule.enums_should_be_pascalcase.symbols = enums
+dotnet_naming_rule.enums_should_be_pascalcase.style = pascalcase
+
+# ===== FORMATTING OPTIONS ===== #
+
+# Always place newlines before keywords and braces.
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_anonymous_types = true
+csharp_new_line_before_members_in_object_initializers = true
+csharp_new_line_before_open_brace = all
+csharp_new_line_between_query_expression_clauses = true
+
+# Indentation preferences
+csharp_indent_block_contents = true
+csharp_indent_braces = false
+csharp_indent_case_contents = true
+csharp_indent_case_contents_when_block = true
+csharp_indent_labels = one_less_than_current
+csharp_indent_switch_labels = true
+
+# Space preferences
+csharp_space_after_cast = false
+csharp_space_after_colon_in_inheritance_clause = true
+csharp_space_after_comma = true
+csharp_space_after_dot = false
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_after_semicolon_in_for_statement = true
+csharp_space_around_binary_operators = before_and_after
+csharp_space_around_declaration_statements = false
+csharp_space_before_colon_in_inheritance_clause = true
+csharp_space_before_comma = false
+csharp_space_before_dot = false
+csharp_space_before_open_square_brackets = false
+csharp_space_before_semicolon_in_for_statement = false
+csharp_space_between_empty_square_brackets = false
+csharp_space_between_method_call_empty_parameter_list_parentheses = false
+csharp_space_between_method_call_name_and_opening_parenthesis = false
+csharp_space_between_method_call_parameter_list_parentheses = false
+csharp_space_between_method_declaration_empty_parameter_list_parentheses = false
+csharp_space_between_method_declaration_name_and_open_parenthesis = false
+csharp_space_between_method_declaration_parameter_list_parentheses = false
+csharp_space_between_parentheses = false
+csharp_space_between_square_brackets = false
+
+# Wrapping preferences
+csharp_preserve_single_line_blocks = true

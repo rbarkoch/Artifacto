@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        ".nswag": "json"
+    },
+    "xml.format.splitAttributes": "alignWithFirstAttr",
+    "xml.format.preservedNewlines": 3,
+    "git.autofetch": true,
+    "dotnetAcquisitionExtension.existingDotnetPath": [
+        {
+            "extensionId": "ms-dotnettools.csharp",
+            "path": "/usr/share/dotnet/dotnet"
+        },
+        {
+            "extensionId": "ms-dotnettools.csdevkit", 
+            "path": "/usr/share/dotnet/dotnet"
+        }
+    ],
+    "hediet.vscode-drawio.theme": "kennedy",
+    "dotnet.server.useOmnisharp": true
+}

@@ -1,0 +1,30 @@
+services:
+  webapi:
+    image: artifacto-webapi
+    build:
+      context: .
+      dockerfile: ./Artifacto.WebApi/Dockerfile
+      args:
+        BUILD_CONFIGURATION: Debug
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPTNETCORE_HOSTS: "http://+:8080"
+    volumes:
+      - ~/.vsdbg:/remote_debugger
+  webapp:
+    image: artifacto-webapp
+    build:
+      context: .
+      dockerfile: ./Artifacto.WebApplication/Dockerfile
+      args:
+        BUILD_CONFIGURATION: Debug
+    ports:
+      - "80:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPTNETCORE_HOSTS: "http://+:80"
+      ArtifactoApi:BaseUrl: "http://webapi:8080"
+    volumes:
+      - ~/.vsdbg:/remote_debugger
