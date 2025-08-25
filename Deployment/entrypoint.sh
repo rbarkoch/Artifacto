@@ -12,7 +12,7 @@ if [ -f "$DEFAULT_CRT" ] && [ -f "$DEFAULT_KEY" ]; then
 else
   echo "No certificate found; generating a self-signed certificate"
   mkdir -p /etc/ssl/certs /etc/ssl/private
-  openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  openssl req -x509 -nodes -days 36500 -newkey rsa:2048 \
     -keyout "$DEFAULT_KEY" -out "$DEFAULT_CRT" \
     -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
   chmod 0640 "$DEFAULT_KEY" "$DEFAULT_CRT"
