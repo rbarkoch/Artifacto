@@ -32,7 +32,7 @@ This tool is not suitable for teams that require high security around their bina
     -p 80:80 \
     -p 443:443 \
     -v artifacto-data:/data \
-    -v artifacto-certs:/certs \
+    -v artifacto-certs:/etc/ssl/certs \
     ghcr.io/rbarkoch/artifacto:latest
   ```
   This will start Artifacto and make the web interface available at [http://localhost:80](http://localhost:80) or [https://localhost:443](http://localhost:443).
@@ -49,7 +49,7 @@ This tool is not suitable for teams that require high security around their bina
          - "443:443"
        volumes:
          - artifacto-volume:/data
-         - artifacto-certs:/certs
+         - artifacto-certs:/etc/ssl/certs
    ```
 
 2. Run:
@@ -61,7 +61,7 @@ This tool is not suitable for teams that require high security around their bina
 
 Artifacto stores all uploaded artifacts and metadata in the `/data` directory inside the container. Make sure to use a Docker volume or bind mount for `/data` to ensure your artifacts persist across container restarts or upgrades.
 
-Artifacto will automatically create self-signed certificates in the `/certs` directory unless certificates are already available.
+Artifacto will automatically create self-signed certificates in the `/etc/ssl/certs` directory unless certificates are already available. To use your own certificates, simply mount a directory to `/etc/ssl/certs` with a `cert.crt` and `cert.key` file.
 
 ## 📦 How to Use Artifacto
 
