@@ -64,6 +64,21 @@ public class Artifact
     public bool Locked { get; set; }
 
     /// <summary>
+    /// Gets or sets the size of the canonical stored SBOM JSON in bytes.
+    /// </summary>
+    public ulong? SbomFileSizeBytes { get; set; }
+
+    /// <summary>
+    /// Gets or sets the SHA256 hash of the canonical stored SBOM JSON.
+    /// </summary>
+    public string? SbomSha256Hash { get; set; }
+
+    /// <summary>
+    /// Gets or sets the CycloneDX specification version of the stored SBOM.
+    /// </summary>
+    public string? SbomSpecVersion { get; set; }
+
+    /// <summary>
     /// Gets or sets the foreign key reference to the project that contains this artifact.
     /// </summary>
     [ForeignKey("Project")]
@@ -96,7 +111,10 @@ public static class ArtifactMappingExtensions
             Sha256Hash: artifact.Sha256Hash,
             Timestamp: artifact.Timestamp,
             Retained: artifact.Retained,
-            Locked: artifact.Locked
+            Locked: artifact.Locked,
+            SbomFileSizeBytes: artifact.SbomFileSizeBytes,
+            SbomSha256Hash: artifact.SbomSha256Hash,
+            SbomSpecVersion: artifact.SbomSpecVersion
         );
     }
 
@@ -115,7 +133,10 @@ public static class ArtifactMappingExtensions
             Sha256Hash = artifact.Sha256Hash,
             Timestamp = artifact.Timestamp,
             Retained = artifact.Retained,
-            Locked = artifact.Locked
+            Locked = artifact.Locked,
+            SbomFileSizeBytes = artifact.SbomFileSizeBytes,
+            SbomSha256Hash = artifact.SbomSha256Hash,
+            SbomSpecVersion = artifact.SbomSpecVersion
         };
     }
 

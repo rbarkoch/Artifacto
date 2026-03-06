@@ -273,6 +273,38 @@ namespace Artifacto.WebApi
 
         System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> DownloadArtifactAsync(string projectKey, string artifactVersion, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
+        /// <summary>
+        /// Upload or replace an artifact SBOM
+        /// </summary>
+
+        /// <remarks>
+        /// Uploads a CycloneDX SBOM for an existing artifact using the raw request body. The uploaded SBOM may be JSON or XML, but it is always normalized and stored as JSON.
+        /// </remarks>
+
+        /// <param name="body">Raw CycloneDX SBOM content. Send JSON or XML in the request body with the matching Content-Type header.</param>
+
+
+        /// <returns>Artifact SBOM uploaded successfully.</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> PutArtifactSbomAsync(Microsoft.AspNetCore.Http.IFormFile body, string projectKey, string artifactVersion, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+
+        /// <summary>
+        /// Download an artifact SBOM
+        /// </summary>
+
+        /// <remarks>
+        /// Retrieves the SBOM content for the specified artifact, re-serialized to the requested CycloneDX version and format.
+        /// </remarks>
+
+        /// <param name="format">The format to use when returning the SBOM.</param>
+
+        /// <param name="specVersion">The CycloneDX specification version to use when returning the SBOM.</param>
+
+
+        /// <returns>Artifact SBOM downloaded successfully.</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<string>> GetArtifactSbomAsync(string format, string specVersion, string projectKey, string artifactVersion, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -370,6 +402,37 @@ namespace Artifacto.WebApi
         {
 
             return _implementation.DownloadArtifactAsync(projectKey, artifactVersion, cancellationToken);
+        }
+
+        /// <summary>
+        /// Upload or replace an artifact SBOM
+        /// </summary>
+        /// <remarks>
+        /// Uploads a CycloneDX SBOM for an existing artifact using the raw request body. The uploaded SBOM may be JSON or XML, but it is always normalized and stored as JSON.
+        /// </remarks>
+        /// <param name="body">Raw CycloneDX SBOM content. Send JSON or XML in the request body with the matching Content-Type header.</param>
+        /// <returns>Artifact SBOM uploaded successfully.</returns>
+        [Microsoft.AspNetCore.Mvc.HttpPut, Microsoft.AspNetCore.Mvc.Route("projects/{projectKey}/artifacts/{artifactVersion}/sbom", Name = "PutArtifactSbom")]
+        public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> PutArtifactSbom(Microsoft.AspNetCore.Http.IFormFile body, string projectKey, string artifactVersion, System.Threading.CancellationToken cancellationToken)
+        {
+
+            return _implementation.PutArtifactSbomAsync(body, projectKey, artifactVersion, cancellationToken);
+        }
+
+        /// <summary>
+        /// Download an artifact SBOM
+        /// </summary>
+        /// <remarks>
+        /// Retrieves the SBOM content for the specified artifact, re-serialized to the requested CycloneDX version and format.
+        /// </remarks>
+        /// <param name="format">The format to use when returning the SBOM.</param>
+        /// <param name="specVersion">The CycloneDX specification version to use when returning the SBOM.</param>
+        /// <returns>Artifact SBOM downloaded successfully.</returns>
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("projects/{projectKey}/artifacts/{artifactVersion}/sbom", Name = "GetArtifactSbom")]
+        public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<string>> GetArtifactSbom([Microsoft.AspNetCore.Mvc.FromQuery] string? format, [Microsoft.AspNetCore.Mvc.FromQuery] string? specVersion, string projectKey, string artifactVersion, System.Threading.CancellationToken cancellationToken)
+        {
+
+            return _implementation.GetArtifactSbomAsync(format ?? "json", specVersion ?? "1.7", projectKey, artifactVersion, cancellationToken);
         }
 
     }
@@ -630,6 +693,41 @@ namespace Artifacto.WebApi
         [System.Text.Json.Serialization.JsonPropertyName("sha256Hash")]
         public string? Sha256Hash { get; set; } = default!;
 
+        /// <summary>
+        /// Whether the artifact has an SBOM attached.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasSbom")]
+        public bool? HasSbom { get; set; } = default!;
+
+        /// <summary>
+        /// Size of the canonical stored SBOM JSON in bytes.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomFileSizeBytes")]
+        public long? SbomFileSizeBytes { get; set; } = default!;
+
+        /// <summary>
+        /// SHA256 hash of the canonical stored SBOM JSON.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomSha256Hash")]
+        public string? SbomSha256Hash { get; set; } = default!;
+
+        /// <summary>
+        /// Stored SBOM format. Always json when an SBOM exists.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomFormat")]
+        public string? SbomFormat { get; set; } = default!;
+
+        /// <summary>
+        /// CycloneDX specification version of the canonical stored SBOM.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomSpecVersion")]
+        public string? SbomSpecVersion { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("retained")]
         public bool? Retained { get; set; } = default!;
 
@@ -709,6 +807,41 @@ namespace Artifacto.WebApi
 
         [System.Text.Json.Serialization.JsonPropertyName("sha256Hash")]
         public string? Sha256Hash { get; set; } = default!;
+
+        /// <summary>
+        /// Whether the artifact has an SBOM attached.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasSbom")]
+        public bool? HasSbom { get; set; } = default!;
+
+        /// <summary>
+        /// Size of the canonical stored SBOM JSON in bytes.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomFileSizeBytes")]
+        public long? SbomFileSizeBytes { get; set; } = default!;
+
+        /// <summary>
+        /// SHA256 hash of the canonical stored SBOM JSON.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomSha256Hash")]
+        public string? SbomSha256Hash { get; set; } = default!;
+
+        /// <summary>
+        /// Stored SBOM format. Always json when an SBOM exists.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomFormat")]
+        public string? SbomFormat { get; set; } = default!;
+
+        /// <summary>
+        /// CycloneDX specification version of the canonical stored SBOM.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomSpecVersion")]
+        public string? SbomSpecVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("retained")]
         public bool? Retained { get; set; } = default!;
@@ -830,6 +963,41 @@ namespace Artifacto.WebApi
 
         [System.Text.Json.Serialization.JsonPropertyName("sha256Hash")]
         public string? Sha256Hash { get; set; } = default!;
+
+        /// <summary>
+        /// Whether the artifact has an SBOM attached.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasSbom")]
+        public bool? HasSbom { get; set; } = default!;
+
+        /// <summary>
+        /// Size of the canonical stored SBOM JSON in bytes.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomFileSizeBytes")]
+        public long? SbomFileSizeBytes { get; set; } = default!;
+
+        /// <summary>
+        /// SHA256 hash of the canonical stored SBOM JSON.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomSha256Hash")]
+        public string? SbomSha256Hash { get; set; } = default!;
+
+        /// <summary>
+        /// Stored SBOM format. Always json when an SBOM exists.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomFormat")]
+        public string? SbomFormat { get; set; } = default!;
+
+        /// <summary>
+        /// CycloneDX specification version of the canonical stored SBOM.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomSpecVersion")]
+        public string? SbomSpecVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("retained")]
         public bool? Retained { get; set; } = default!;

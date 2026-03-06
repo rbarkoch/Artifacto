@@ -1,0 +1,28 @@
+@namespace Artifacto.WebApplication.Components.Dialogs
+@using MudBlazor
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="Icons.Material.Filled.Warning" Color="Color.Warning" Class="mr-3 mb-n1" />
+            Remove SBOM?
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudAlert Severity="Severity.Warning">
+                Changing the artifact version will remove the attached SBOM.
+            </MudAlert>
+
+            <MudText>
+                The artifact version can be changed, but the SBOM will need to be uploaded again afterward.
+            </MudText>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="Confirm">
+            Continue
+        </MudButton>
+    </DialogActions>
+</MudDialog>

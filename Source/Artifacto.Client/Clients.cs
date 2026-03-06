@@ -967,6 +967,54 @@ namespace Artifacto.Client
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<FileResponse> DownloadArtifactAsync(string projectKey, string artifactVersion, System.Threading.CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Upload or replace an artifact SBOM
+        /// </summary>
+        /// <remarks>
+        /// Uploads a CycloneDX SBOM for an existing artifact using the raw request body. The uploaded SBOM may be JSON or XML, but it is always normalized and stored as JSON.
+        /// </remarks>
+        /// <param name="body">Raw CycloneDX SBOM content. Send JSON or XML in the request body with the matching Content-Type header.</param>
+        /// <returns>Artifact SBOM uploaded successfully.</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task PutArtifactSbomAsync(FileParameter body, string projectKey, string artifactVersion);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Upload or replace an artifact SBOM
+        /// </summary>
+        /// <remarks>
+        /// Uploads a CycloneDX SBOM for an existing artifact using the raw request body. The uploaded SBOM may be JSON or XML, but it is always normalized and stored as JSON.
+        /// </remarks>
+        /// <param name="body">Raw CycloneDX SBOM content. Send JSON or XML in the request body with the matching Content-Type header.</param>
+        /// <returns>Artifact SBOM uploaded successfully.</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task PutArtifactSbomAsync(FileParameter body, string projectKey, string artifactVersion, System.Threading.CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Download an artifact SBOM
+        /// </summary>
+        /// <remarks>
+        /// Retrieves the SBOM content for the specified artifact, re-serialized to the requested CycloneDX version and format.
+        /// </remarks>
+        /// <param name="format">The format to use when returning the SBOM.</param>
+        /// <param name="specVersion">The CycloneDX specification version to use when returning the SBOM.</param>
+        /// <returns>Artifact SBOM downloaded successfully.</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<string> GetArtifactSbomAsync(string? format, string? specVersion, string projectKey, string artifactVersion);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Download an artifact SBOM
+        /// </summary>
+        /// <remarks>
+        /// Retrieves the SBOM content for the specified artifact, re-serialized to the requested CycloneDX version and format.
+        /// </remarks>
+        /// <param name="format">The format to use when returning the SBOM.</param>
+        /// <param name="specVersion">The CycloneDX specification version to use when returning the SBOM.</param>
+        /// <returns>Artifact SBOM downloaded successfully.</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<string> GetArtifactSbomAsync(string? format, string? specVersion, string projectKey, string artifactVersion, System.Threading.CancellationToken cancellationToken);
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -1708,6 +1756,264 @@ namespace Artifacto.Client
             }
         }
 
+        /// <summary>
+        /// Upload or replace an artifact SBOM
+        /// </summary>
+        /// <remarks>
+        /// Uploads a CycloneDX SBOM for an existing artifact using the raw request body. The uploaded SBOM may be JSON or XML, but it is always normalized and stored as JSON.
+        /// </remarks>
+        /// <param name="body">Raw CycloneDX SBOM content. Send JSON or XML in the request body with the matching Content-Type header.</param>
+        /// <returns>Artifact SBOM uploaded successfully.</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task PutArtifactSbomAsync(FileParameter body, string projectKey, string artifactVersion)
+        {
+            return PutArtifactSbomAsync(body, projectKey, artifactVersion, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Upload or replace an artifact SBOM
+        /// </summary>
+        /// <remarks>
+        /// Uploads a CycloneDX SBOM for an existing artifact using the raw request body. The uploaded SBOM may be JSON or XML, but it is always normalized and stored as JSON.
+        /// </remarks>
+        /// <param name="body">Raw CycloneDX SBOM content. Send JSON or XML in the request body with the matching Content-Type header.</param>
+        /// <returns>Artifact SBOM uploaded successfully.</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task PutArtifactSbomAsync(FileParameter body, string projectKey, string artifactVersion, System.Threading.CancellationToken cancellationToken)
+        {
+            if (projectKey == null)
+                throw new System.ArgumentNullException("projectKey");
+
+            if (artifactVersion == null)
+                throw new System.ArgumentNullException("artifactVersion");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var content_ = new System.Net.Http.StreamContent(body.Data);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(body.ContentType);
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("PUT");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "projects/{projectKey}/artifacts/{artifactVersion}/sbom"
+                    urlBuilder_.Append("projects/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(projectKey, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/artifacts/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(artifactVersion, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/sbom");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 204)
+                        {
+                            return;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ErrorResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ErrorResponse>("Invalid input.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ErrorResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ErrorResponse>("Artifact or project not found.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("Internal server error.", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Download an artifact SBOM
+        /// </summary>
+        /// <remarks>
+        /// Retrieves the SBOM content for the specified artifact, re-serialized to the requested CycloneDX version and format.
+        /// </remarks>
+        /// <param name="format">The format to use when returning the SBOM.</param>
+        /// <param name="specVersion">The CycloneDX specification version to use when returning the SBOM.</param>
+        /// <returns>Artifact SBOM downloaded successfully.</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<string> GetArtifactSbomAsync(string? format, string? specVersion, string projectKey, string artifactVersion)
+        {
+            return GetArtifactSbomAsync(format, specVersion, projectKey, artifactVersion, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Download an artifact SBOM
+        /// </summary>
+        /// <remarks>
+        /// Retrieves the SBOM content for the specified artifact, re-serialized to the requested CycloneDX version and format.
+        /// </remarks>
+        /// <param name="format">The format to use when returning the SBOM.</param>
+        /// <param name="specVersion">The CycloneDX specification version to use when returning the SBOM.</param>
+        /// <returns>Artifact SBOM downloaded successfully.</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<string> GetArtifactSbomAsync(string? format, string? specVersion, string projectKey, string artifactVersion, System.Threading.CancellationToken cancellationToken)
+        {
+            if (projectKey == null)
+                throw new System.ArgumentNullException("projectKey");
+
+            if (artifactVersion == null)
+                throw new System.ArgumentNullException("artifactVersion");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "projects/{projectKey}/artifacts/{artifactVersion}/sbom"
+                    urlBuilder_.Append("projects/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(projectKey, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/artifacts/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(artifactVersion, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/sbom");
+                    urlBuilder_.Append('?');
+                    if (format != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("format")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(format, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (specVersion != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("specVersion")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(specVersion, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<string>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ErrorResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ErrorResponse>("Artifact, project, or SBOM not found.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("Internal server error.", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
         protected struct ObjectResponseResult<T>
         {
             public ObjectResponseResult(T responseObject, string responseText)
@@ -2073,6 +2379,41 @@ namespace Artifacto.Client
         [System.Text.Json.Serialization.JsonPropertyName("sha256Hash")]
         public string? Sha256Hash { get; set; } = default!;
 
+        /// <summary>
+        /// Whether the artifact has an SBOM attached.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasSbom")]
+        public bool? HasSbom { get; set; } = default!;
+
+        /// <summary>
+        /// Size of the canonical stored SBOM JSON in bytes.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomFileSizeBytes")]
+        public long? SbomFileSizeBytes { get; set; } = default!;
+
+        /// <summary>
+        /// SHA256 hash of the canonical stored SBOM JSON.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomSha256Hash")]
+        public string? SbomSha256Hash { get; set; } = default!;
+
+        /// <summary>
+        /// Stored SBOM format. Always json when an SBOM exists.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomFormat")]
+        public string? SbomFormat { get; set; } = default!;
+
+        /// <summary>
+        /// CycloneDX specification version of the canonical stored SBOM.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomSpecVersion")]
+        public string? SbomSpecVersion { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("retained")]
         public bool? Retained { get; set; } = default!;
 
@@ -2152,6 +2493,41 @@ namespace Artifacto.Client
 
         [System.Text.Json.Serialization.JsonPropertyName("sha256Hash")]
         public string? Sha256Hash { get; set; } = default!;
+
+        /// <summary>
+        /// Whether the artifact has an SBOM attached.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasSbom")]
+        public bool? HasSbom { get; set; } = default!;
+
+        /// <summary>
+        /// Size of the canonical stored SBOM JSON in bytes.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomFileSizeBytes")]
+        public long? SbomFileSizeBytes { get; set; } = default!;
+
+        /// <summary>
+        /// SHA256 hash of the canonical stored SBOM JSON.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomSha256Hash")]
+        public string? SbomSha256Hash { get; set; } = default!;
+
+        /// <summary>
+        /// Stored SBOM format. Always json when an SBOM exists.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomFormat")]
+        public string? SbomFormat { get; set; } = default!;
+
+        /// <summary>
+        /// CycloneDX specification version of the canonical stored SBOM.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomSpecVersion")]
+        public string? SbomSpecVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("retained")]
         public bool? Retained { get; set; } = default!;
@@ -2273,6 +2649,41 @@ namespace Artifacto.Client
 
         [System.Text.Json.Serialization.JsonPropertyName("sha256Hash")]
         public string? Sha256Hash { get; set; } = default!;
+
+        /// <summary>
+        /// Whether the artifact has an SBOM attached.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasSbom")]
+        public bool? HasSbom { get; set; } = default!;
+
+        /// <summary>
+        /// Size of the canonical stored SBOM JSON in bytes.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomFileSizeBytes")]
+        public long? SbomFileSizeBytes { get; set; } = default!;
+
+        /// <summary>
+        /// SHA256 hash of the canonical stored SBOM JSON.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomSha256Hash")]
+        public string? SbomSha256Hash { get; set; } = default!;
+
+        /// <summary>
+        /// Stored SBOM format. Always json when an SBOM exists.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomFormat")]
+        public string? SbomFormat { get; set; } = default!;
+
+        /// <summary>
+        /// CycloneDX specification version of the canonical stored SBOM.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("sbomSpecVersion")]
+        public string? SbomSpecVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("retained")]
         public bool? Retained { get; set; } = default!;

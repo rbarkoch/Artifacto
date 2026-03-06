@@ -331,6 +331,95 @@ paths:
         # Error: Internal server error.
         "500":
           description: "Internal server error."
+  # ===================
+  # MARK: ARTIFACT SBOM
+  # ===================
+  /projects/{projectKey}/artifacts/{artifactVersion}/sbom:
+    parameters:
+      - name: projectKey
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: artifactVersion
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: PutArtifactSbom
+      tags:
+        - Artifacts
+      summary: "Upload or replace an artifact SBOM"
+      description: "Uploads a CycloneDX SBOM for an existing artifact using the raw request body. The uploaded SBOM may be JSON or XML, but it is always normalized and stored as JSON."
+      requestBody:
+        required: true
+        description: "Raw CycloneDX SBOM content. Send JSON or XML in the request body with the matching Content-Type header."
+        content:
+          application/json:
+            schema:
+              type: string
+              format: binary
+          application/xml:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "204":
+          description: "Artifact SBOM uploaded successfully."
+        "400":
+          description: "Invalid input."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Artifact or project not found."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: "Internal server error."
+    get:
+      operationId: GetArtifactSbom
+      tags:
+        - Artifacts
+      summary: "Download an artifact SBOM"
+      description: "Retrieves the SBOM content for the specified artifact, re-serialized to the requested CycloneDX version and format."
+      parameters:
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            default: json
+          description: "The format to use when returning the SBOM."
+        - name: specVersion
+          in: query
+          required: false
+          schema:
+            type: string
+            default: "1.7"
+          description: "The CycloneDX specification version to use when returning the SBOM."
+      responses:
+        "200":
+          description: "Artifact SBOM downloaded successfully."
+          content:
+            application/json:
+              schema:
+                type: string
+            application/xml:
+              schema:
+                type: string
+        "404":
+          description: "Artifact, project, or SBOM not found."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: "Internal server error."
 components:
   schemas:
     # ====================
@@ -482,6 +571,26 @@ components:
         sha256Hash:
           type: string
           description: "SHA256 hash of the artifact file."
+        hasSbom:
+          type: boolean
+          description: "Whether the artifact has an SBOM attached."
+        sbomFileSizeBytes:
+          type: integer
+          format: int64
+          nullable: true
+          description: "Size of the canonical stored SBOM JSON in bytes."
+        sbomSha256Hash:
+          type: string
+          nullable: true
+          description: "SHA256 hash of the canonical stored SBOM JSON."
+        sbomFormat:
+          type: string
+          nullable: true
+          description: "Stored SBOM format. Always json when an SBOM exists."
+        sbomSpecVersion:
+          type: string
+          nullable: true
+          description: "CycloneDX specification version of the canonical stored SBOM."
         retained:
           type: boolean
         locked:
@@ -525,6 +634,26 @@ components:
         sha256Hash:
           type: string
           description: "SHA256 hash of the artifact file."
+        hasSbom:
+          type: boolean
+          description: "Whether the artifact has an SBOM attached."
+        sbomFileSizeBytes:
+          type: integer
+          format: int64
+          nullable: true
+          description: "Size of the canonical stored SBOM JSON in bytes."
+        sbomSha256Hash:
+          type: string
+          nullable: true
+          description: "SHA256 hash of the canonical stored SBOM JSON."
+        sbomFormat:
+          type: string
+          nullable: true
+          description: "Stored SBOM format. Always json when an SBOM exists."
+        sbomSpecVersion:
+          type: string
+          nullable: true
+          description: "CycloneDX specification version of the canonical stored SBOM."
         retained:
           type: boolean
         locked:
@@ -591,6 +720,26 @@ components:
         sha256Hash:
           type: string
           description: "SHA256 hash of the artifact file."
+        hasSbom:
+          type: boolean
+          description: "Whether the artifact has an SBOM attached."
+        sbomFileSizeBytes:
+          type: integer
+          format: int64
+          nullable: true
+          description: "Size of the canonical stored SBOM JSON in bytes."
+        sbomSha256Hash:
+          type: string
+          nullable: true
+          description: "SHA256 hash of the canonical stored SBOM JSON."
+        sbomFormat:
+          type: string
+          nullable: true
+          description: "Stored SBOM format. Always json when an SBOM exists."
+        sbomSpecVersion:
+          type: string
+          nullable: true
+          description: "CycloneDX specification version of the canonical stored SBOM."
         retained:
           type: boolean
         locked:

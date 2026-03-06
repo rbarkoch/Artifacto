@@ -16,6 +16,7 @@ public static class DependencyInjectionExtensions
     /// <returns>The updated <see cref="IServiceCollection"/>.</returns>
     public static IServiceCollection AddArtifactoControllers(this IServiceCollection services)
     {
+        services.AddScoped<IArtifactSbomService, ArtifactSbomService>();
         services.AddScoped<IProjectsController, ProjectsControllerImplementation>();
         services.AddScoped<IArtifactsController, ArtifactsControllerImplementation>();
         return services;

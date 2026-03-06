@@ -108,6 +108,20 @@
                             </CellTemplate>
                         </PropertyColumn>
                         <PropertyColumn Property="x => x.FileSize" Title="File Size" />
+                        <TemplateColumn Title="SBOM" Sortable="false" HeaderStyle="text-align: left;" CellStyle="text-align: left;">
+                            <CellTemplate>
+                                <div style="display: flex; justify-content: flex-start;">
+                                    @if (context.Item.HasSbom)
+                                    {
+                                        <MudChip Color="Color.Success" Variant="Variant.Outlined" Size="Size.Small">Available</MudChip>
+                                    }
+                                    else
+                                    {
+                                        <MudChip Color="Color.Default" Variant="Variant.Outlined" Size="Size.Small">Missing</MudChip>
+                                    }
+                                </div>
+                            </CellTemplate>
+                        </TemplateColumn>
                         <TemplateColumn Title="Actions" Sortable="false">
                             <CellTemplate>
                                 <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small">
@@ -115,9 +129,18 @@
                                                    Color="Color.Primary"
                                                    OnClick="() => DownloadArtifact(context.Item.Version)"
                                                    title="Download artifact" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.UploadFile"
+                                                   Color="Color.Info"
+                                                   OnClick="() => ShowUploadSbomModal(context.Item.Version)"
+                                                   title="Upload SBOM" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Description"
+                                                   Color="Color.Success"
+                                                   OnClick="() => ShowDownloadSbomModal(context.Item.Version)"
+                                                   Disabled="@(!context.Item.HasSbom)"
+                                                   title="Download SBOM" />
                                     <MudIconButton Icon="@Icons.Material.Filled.Edit" 
                                                    Color="Color.Warning"
-                                                   OnClick="() => EditArtifact(context.Item.Version)"
+                                                   OnClick="() => EditArtifact(context.Item.Version, context.Item.HasSbom)"
                                                    title="Edit version" />
                                     <MudIconButton Icon="@Icons.Material.Filled.Delete" 
                                                    Color="Color.Error"

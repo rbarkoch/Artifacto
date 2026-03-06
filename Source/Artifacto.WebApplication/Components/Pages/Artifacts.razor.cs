@@ -23,7 +23,7 @@ public partial class Artifacts
     /// <summary>
     /// Lightweight DTO representing an artifact row in the UI table.
     /// </summary>
-    private record ArtifactRow(string Version, DateTime UploadDate, string FileSize, string FileName);
+    private record ArtifactRow(string Version, DateTime UploadDate, string FileSize, string FileName, bool HasSbom);
 
     /// <summary>
     /// The project identifier for which artifacts are displayed.
@@ -131,7 +131,8 @@ public partial class Artifacts
                     a.Version ?? "Unknown",
                     a.Timestamp?.DateTime ?? DateTime.MinValue,
                     FormatFileSize(a.FileSizeBytes ?? 0),
-                    a.FileName ?? "Unknown File"
+                    a.FileName ?? "Unknown File",
+                    a.HasSbom ?? false
                 ))];
 
             _hasArtifacts = _artifacts.Any();
@@ -230,6 +231,80 @@ public partial class Artifacts
     }
 
     /// <summary>
+    /// Opens the SBOM upload dialog for the specified artifact version.
+    /// </summary>
+    /// <param name="version">Artifact version to attach an SBOM to.</param>
+    private async Task ShowUploadSbomModal(string version)
+    {
+        DialogParameters parameters = new()
+        {
+            [nameof(UploadSbomDialog.ProjectId)] = ProjectId,
+            [nameof(UploadSbomDialog.ArtifactVersion)] = version
+        };
+
+        DialogOptions options = new()
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true
+        };
+
+        IDialogReference dialog = await DialogService.ShowAsync<UploadSbomDialog>("Upload SBOM", parameters, options);
+        DialogResult? result = await dialog.Result;
+        if (result is not null && !result.Canceled)
+        {
+            Snackbar.Add($"SBOM uploaded for artifact {version}", Severity.Success);
+            await LoadProjectData();
+        }
+    }
+
+    /// <summary>
+    /// Opens the SBOM download dialog for the specified artifact version.
+    /// </summary>
+    /// <param name="version">Artifact version whose SBOM should be downloaded.</param>
+    private async Task ShowDownloadSbomModal(string version)
+    {
+        DialogParameters parameters = new()
+        {
+            [nameof(DownloadSbomDialog.ArtifactVersion)] = version
+        };
+
+        DialogOptions options = new()
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true
+        };
+
+        IDialogReference dialog = await DialogService.ShowAsync<DownloadSbomDialog>("Download SBOM", parameters, options);
+        DialogResult? result = await dialog.Result;
+        if (result is not null && !result.Canceled && result.Data is DownloadSbomSelection selection)
+        {
+            await DownloadSbom(version, selection.Format, selection.SpecVersion);
+        }
+    }
+
+    /// <summary>
+    /// Starts a browser download for the specified artifact SBOM.
+    /// </summary>
+    /// <param name="version">Artifact version whose SBOM should be downloaded.</param>
+    /// <param name="format">Requested output format.</param>
+    /// <param name="specVersion">Requested CycloneDX specification version.</param>
+    private async Task DownloadSbom(string version, string format, string specVersion)
+    {
+        try
+        {
+            string downloadUrl = $"/projects/{ProjectId}/artifacts/{version}/sbom?format={Uri.EscapeDataString(format)}&specVersion={Uri.EscapeDataString(specVersion)}";
+            await JSRuntime.InvokeVoidAsync("downloadFileFromUrl", $"{ProjectId}_{version}.sbom.{format}", downloadUrl);
+            Snackbar.Add($"SBOM download started for artifact {version}", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error starting SBOM download: {ex.Message}", Severity.Error);
+        }
+    }
+
+    /// <summary>
     /// Opens a confirmation dialog and deletes the specified artifact when confirmed.
     /// </summary>
     /// <param name="version">Artifact version to delete.</param>
@@ -267,12 +342,13 @@ public partial class Artifacts
     /// Opens the edit artifact dialog for updating the artifact version.
     /// </summary>
     /// <param name="version">Current artifact version to edit.</param>
-    private async Task EditArtifact(string version)
+    private async Task EditArtifact(string version, bool hasSbom)
     {
         DialogParameters parameters = new()
         {
             [nameof(EditArtifactDialog.ProjectId)] = ProjectId,
-            [nameof(EditArtifactDialog.CurrentVersion)] = version
+            [nameof(EditArtifactDialog.CurrentVersion)] = version,
+            [nameof(EditArtifactDialog.HasSbom)] = hasSbom
         };
 
         DialogOptions options = new()

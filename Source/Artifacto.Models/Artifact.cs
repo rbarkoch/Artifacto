@@ -13,6 +13,9 @@ namespace Artifacto.Models;
 /// <param name="Timestamp">The timestamp when the artifact was created or last modified.</param>
 /// <param name="Retained">Whether this artifact should be retained and not automatically deleted.</param>
 /// <param name="Locked">Whether this artifact is locked and cannot be modified or deleted.</param>
+/// <param name="SbomFileSizeBytes">The size of the canonical stored SBOM JSON in bytes, if present.</param>
+/// <param name="SbomSha256Hash">The SHA256 hash of the canonical stored SBOM JSON, if present.</param>
+/// <param name="SbomSpecVersion">The CycloneDX specification version of the stored SBOM, if present.</param>
 public record Artifact(
     int ProjectId,
     int ArtifactId,
@@ -22,5 +25,8 @@ public record Artifact(
     string Sha256Hash,
     DateTime Timestamp,
     bool Retained,
-    bool Locked
+    bool Locked,
+    ulong? SbomFileSizeBytes,
+    string? SbomSha256Hash,
+    string? SbomSpecVersion
 );

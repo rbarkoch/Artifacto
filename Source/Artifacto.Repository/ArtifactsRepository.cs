@@ -37,6 +37,13 @@ public class ArtifactsRepository
         _logger = logger;
     }
 
+    private static bool HasSbom(Database.Models.Artifact artifact)
+    {
+        return artifact.SbomFileSizeBytes.HasValue &&
+            artifact.SbomFileSizeBytes.Value > 0 &&
+            !string.IsNullOrWhiteSpace(artifact.SbomSha256Hash);
+    }
+
     /// <summary>
     /// Retrieves an artifact by project key and version.
     /// </summary>
@@ -149,7 +156,7 @@ public class ArtifactsRepository
     {
         _logger.LogInformation("Updating artifact metadata for artifact {ArtifactId} version {Version}", artifact.ArtifactId, artifact.Version.ToString());
         
-        Database.Models.Artifact? existingArtifact = await _dbContext.Artifacts.FindAsync(artifact.ArtifactId, cancellationToken);
+        Database.Models.Artifact? existingArtifact = await _dbContext.Artifacts.Include(a => a.Project).FirstOrDefaultAsync(a => a.ArtifactId == artifact.ArtifactId, cancellationToken);
 
         // ----- Validation ---- //
         if (existingArtifact is null)
@@ -182,6 +189,24 @@ public class ArtifactsRepository
             return new BadRequestError($"Cannot modify the hash of an artifact without uploading new data.");
         }
 
+        if (artifact.SbomFileSizeBytes != existingArtifact.SbomFileSizeBytes)
+        {
+            _logger.LogWarning("Cannot modify SBOM file size for artifact {ArtifactId}", artifact.ArtifactId);
+            return new BadRequestError("Cannot modify the SBOM metadata of an artifact without uploading new SBOM data.");
+        }
+
+        if (artifact.SbomSha256Hash != existingArtifact.SbomSha256Hash)
+        {
+            _logger.LogWarning("Cannot modify SBOM hash for artifact {ArtifactId}", artifact.ArtifactId);
+            return new BadRequestError("Cannot modify the SBOM metadata of an artifact without uploading new SBOM data.");
+        }
+
+        if (artifact.SbomSpecVersion != existingArtifact.SbomSpecVersion)
+        {
+            _logger.LogWarning("Cannot modify SBOM spec version for artifact {ArtifactId}", artifact.ArtifactId);
+            return new BadRequestError("Cannot modify the SBOM metadata of an artifact without uploading new SBOM data.");
+        }
+
         if (existingArtifact.Version != artifact.Version.ToString())
         {
             // Version is changing, we need to ensure the new version doesn't already exists.
@@ -208,6 +233,22 @@ public class ArtifactsRepository
                     conflict => conflict
                 );
             }
+        }
+
+        bool versionChanged = existingArtifact.Version != artifact.Version.ToString();
+        if (versionChanged && HasSbom(existingArtifact))
+        {
+            OneOf<Success, BadRequestError, NotFoundError> deleteSbomResult = await _fileStorage.DeleteArtifactSbomAsync(existingArtifact.Project.Key, artifact.Version.ToString(), cancellationToken);
+            if (!deleteSbomResult.TryPickT0(out Success _, out OneOf<BadRequestError, NotFoundError> deleteSbomError))
+            {
+                deleteSbomError.Switch(
+                    badRequestError => _logger.LogWarning("Failed to delete SBOM during version change for artifact {ArtifactId}: {Message}", artifact.ArtifactId, badRequestError.Message),
+                    notFoundError => _logger.LogInformation("No stored SBOM file found to delete during version change for artifact {ArtifactId}: {Message}", artifact.ArtifactId, notFoundError.Message));
+            }
+
+            existingArtifact.SbomFileSizeBytes = null;
+            existingArtifact.SbomSha256Hash = null;
+            existingArtifact.SbomSpecVersion = null;
         }
 
         // Update the artifact metadata
@@ -268,6 +309,24 @@ public class ArtifactsRepository
         {
             _logger.LogWarning("Cannot modify file size for artifact {ArtifactId}", artifact.ArtifactId);
             return new BadRequestError($"Cannot modify the file size of an artifact without uploading new data.");
+        }
+
+        if (artifact.SbomFileSizeBytes != existingArtifact.SbomFileSizeBytes)
+        {
+            _logger.LogWarning("Cannot modify SBOM file size for artifact {ArtifactId}", artifact.ArtifactId);
+            return new BadRequestError("Cannot modify the SBOM metadata of an artifact without uploading new SBOM data.");
+        }
+
+        if (artifact.SbomSha256Hash != existingArtifact.SbomSha256Hash)
+        {
+            _logger.LogWarning("Cannot modify SBOM hash for artifact {ArtifactId}", artifact.ArtifactId);
+            return new BadRequestError("Cannot modify the SBOM metadata of an artifact without uploading new SBOM data.");
+        }
+
+        if (artifact.SbomSpecVersion != existingArtifact.SbomSpecVersion)
+        {
+            _logger.LogWarning("Cannot modify SBOM spec version for artifact {ArtifactId}", artifact.ArtifactId);
+            return new BadRequestError("Cannot modify the SBOM metadata of an artifact without uploading new SBOM data.");
         }
 
         if (existingArtifact.Version != artifact.Version.ToString())
@@ -356,6 +415,76 @@ public class ArtifactsRepository
         return new Success();
     }
 
+    public async Task<OneOf<Artifact, NotFoundError, BadRequestError>> SetArtifactSbomAsync(string projectKey, Version version, ulong sbomFileSizeBytes, string sbomSpecVersion, Stream sbomStream, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Setting SBOM for project {ProjectKey} version {Version}", projectKey, version.ToString());
+
+        Database.Models.Project? project = await _dbContext.Projects.FindByKeyAsync(projectKey, cancellationToken);
+        if (project is null)
+        {
+            _logger.LogInformation("Project not found {ProjectKey}", projectKey);
+            return new NotFoundError($"Project with key '{projectKey}' not found.");
+        }
+
+        Database.Models.Artifact? existingArtifact = await _dbContext.Artifacts.FindByVersionAsync(project.ProjectId, version.ToString(), cancellationToken);
+        if (existingArtifact is null)
+        {
+            _logger.LogInformation("Artifact not found for SBOM update {ProjectKey} version {Version}", projectKey, version.ToString());
+            return new NotFoundError($"Artifact with version '{version}' not found in project with key '{projectKey}'.");
+        }
+
+        OneOf<SaveArtifactSuccess, BadRequestError> saveResult = await _fileStorage.SaveArtifactSbomAsync(projectKey, version.ToString(), sbomStream, cancellationToken);
+        if (!saveResult.TryPickT0(out SaveArtifactSuccess saveSuccess, out BadRequestError saveError))
+        {
+            _logger.LogWarning("Failed to save SBOM file for project {ProjectKey} version {Version}: {Message}", projectKey, version.ToString(), saveError.Message);
+            return saveError;
+        }
+
+        existingArtifact.SbomFileSizeBytes = sbomFileSizeBytes;
+        existingArtifact.SbomSha256Hash = saveSuccess.Sha256Hash;
+        existingArtifact.SbomSpecVersion = sbomSpecVersion;
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("Set SBOM for project {ProjectKey} version {Version}", projectKey, version.ToString());
+        return existingArtifact.ToDomainModel();
+    }
+
+    public async Task<OneOf<Stream, NotFoundError>> DownloadArtifactSbomAsync(string projectKey, Version version, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Downloading SBOM for project {ProjectKey} version {Version}", projectKey, version.ToString());
+
+        OneOf<Artifact, NotFoundError> artifactResponse = await GetArtifactAsync(projectKey, version, cancellationToken);
+        if (!artifactResponse.TryPickT0(out Artifact artifact, out NotFoundError notFoundError))
+        {
+            return notFoundError;
+        }
+
+        if (string.IsNullOrWhiteSpace(artifact.SbomSha256Hash))
+        {
+            _logger.LogInformation("SBOM not found for project {ProjectKey} version {Version}", projectKey, version.ToString());
+            return new NotFoundError($"SBOM for artifact with version '{version}' not found in project with key '{projectKey}'.");
+        }
+
+        OneOf<Stream, BadRequestError, NotFoundError> fileResponse = await _fileStorage.DownloadArtifactSbomAsync(projectKey, version.ToString(), cancellationToken);
+        return fileResponse.Match<OneOf<Stream, NotFoundError>>(
+            stream =>
+            {
+                _logger.LogDebug("Successfully downloaded SBOM stream for project {ProjectKey} version {Version}", projectKey, version.ToString());
+                return stream;
+            },
+            badRequestError =>
+            {
+                _logger.LogWarning("Bad request downloading SBOM for project {ProjectKey} version {Version}: {Message}", projectKey, version.ToString(), badRequestError.Message);
+                return new NotFoundError($"SBOM for artifact with version '{version}' not found in project with key '{projectKey}'.");
+            },
+            notFound =>
+            {
+                _logger.LogInformation("SBOM file not found for project {ProjectKey} version {Version}: {Message}", projectKey, version.ToString(), notFound.Message);
+                return new NotFoundError($"SBOM for artifact with version '{version}' not found in project with key '{projectKey}'.");
+            }
+        );
+    }
+
     public async Task<OneOf<Artifact, NotFoundError, ConflictError>> NewArtifactAsync(Artifact artifact, Stream stream, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating new artifact for project {ProjectId} version {Version} filename {FileName}", artifact.ProjectId, artifact.Version.ToString(), artifact.FileName);
@@ -404,7 +533,10 @@ public class ArtifactsRepository
             Sha256Hash = saveSuccess.Sha256Hash,
             Timestamp = DateTime.UtcNow,
             Retained = artifact.Retained,
-            Locked = artifact.Locked
+            Locked = artifact.Locked,
+            SbomFileSizeBytes = null,
+            SbomSha256Hash = null,
+            SbomSpecVersion = null
         };
 
         _dbContext.Artifacts.Add(newArtifact);

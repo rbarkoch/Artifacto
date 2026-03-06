@@ -32,10 +32,19 @@ public partial class EditArtifactDialog : ComponentBase
     public required string CurrentVersion { get; set; }
 
     /// <summary>
+    /// Indicates whether the artifact currently has an SBOM attached.
+    /// </summary>
+    [Parameter]
+    public required bool HasSbom { get; set; }
+
+    /// <summary>
     /// API client used to call artifact update endpoints.
     /// </summary>
     [Inject]
     private ArtifactoClient ArtifactoClient { get; set; } = default!;
+
+    [Inject]
+    private IDialogService DialogService { get; set; } = default!;
 
     // Form state
     /// <summary>
@@ -117,6 +126,23 @@ public partial class EditArtifactDialog : ComponentBase
         try
         {
             StateHasChanged();
+
+            if (HasSbom && !string.Equals(_model.NewVersion, CurrentVersion, StringComparison.Ordinal))
+            {
+                DialogOptions options = new()
+                {
+                    CloseOnEscapeKey = true,
+                    MaxWidth = MaxWidth.Small,
+                    FullWidth = true
+                };
+
+                IDialogReference confirmationDialog = await DialogService.ShowAsync<ConfirmSbomRemovalDialog>("Remove SBOM?", options);
+                DialogResult? confirmationResult = await confirmationDialog.Result;
+                if (confirmationResult is null || confirmationResult.Canceled)
+                {
+                    return;
+                }
+            }
 
             // Create the update request
             ArtifactPutRequest request = new()

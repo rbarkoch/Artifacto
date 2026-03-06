@@ -407,6 +407,138 @@
           }
         }
       }
+    },
+    "/projects/{projectKey}/artifacts/{artifactVersion}/sbom": {
+      "parameters": [
+        {
+          "name": "projectKey",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "artifactVersion",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "Upload or replace an artifact SBOM",
+        "description": "Uploads a CycloneDX SBOM for an existing artifact using the raw request body. The uploaded SBOM may be JSON or XML, but it is always normalized and stored as JSON.",
+        "operationId": "PutArtifactSbom",
+        "requestBody": {
+          "description": "Raw CycloneDX SBOM content. Send JSON or XML in the request body with the matching Content-Type header.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Artifact SBOM uploaded successfully."
+          },
+          "400": {
+            "description": "Invalid input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Artifact or project not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "Download an artifact SBOM",
+        "description": "Retrieves the SBOM content for the specified artifact, re-serialized to the requested CycloneDX version and format.",
+        "operationId": "GetArtifactSbom",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "description": "The format to use when returning the SBOM.",
+            "schema": {
+              "type": "string",
+              "default": "json"
+            }
+          },
+          {
+            "name": "specVersion",
+            "in": "query",
+            "description": "The CycloneDX specification version to use when returning the SBOM.",
+            "schema": {
+              "type": "string",
+              "default": "1.7"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Artifact SBOM downloaded successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Artifact, project, or SBOM not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
     }
   },
   "components": {
@@ -578,6 +710,31 @@
             "type": "string",
             "description": "SHA256 hash of the artifact file."
           },
+          "hasSbom": {
+            "type": "boolean",
+            "description": "Whether the artifact has an SBOM attached."
+          },
+          "sbomFileSizeBytes": {
+            "type": "integer",
+            "description": "Size of the canonical stored SBOM JSON in bytes.",
+            "format": "int64",
+            "nullable": true
+          },
+          "sbomSha256Hash": {
+            "type": "string",
+            "description": "SHA256 hash of the canonical stored SBOM JSON.",
+            "nullable": true
+          },
+          "sbomFormat": {
+            "type": "string",
+            "description": "Stored SBOM format. Always json when an SBOM exists.",
+            "nullable": true
+          },
+          "sbomSpecVersion": {
+            "type": "string",
+            "description": "CycloneDX specification version of the canonical stored SBOM.",
+            "nullable": true
+          },
           "retained": {
             "type": "boolean"
           },
@@ -626,6 +783,31 @@
           "sha256Hash": {
             "type": "string",
             "description": "SHA256 hash of the artifact file."
+          },
+          "hasSbom": {
+            "type": "boolean",
+            "description": "Whether the artifact has an SBOM attached."
+          },
+          "sbomFileSizeBytes": {
+            "type": "integer",
+            "description": "Size of the canonical stored SBOM JSON in bytes.",
+            "format": "int64",
+            "nullable": true
+          },
+          "sbomSha256Hash": {
+            "type": "string",
+            "description": "SHA256 hash of the canonical stored SBOM JSON.",
+            "nullable": true
+          },
+          "sbomFormat": {
+            "type": "string",
+            "description": "Stored SBOM format. Always json when an SBOM exists.",
+            "nullable": true
+          },
+          "sbomSpecVersion": {
+            "type": "string",
+            "description": "CycloneDX specification version of the canonical stored SBOM.",
+            "nullable": true
           },
           "retained": {
             "type": "boolean"
@@ -701,6 +883,31 @@
           "sha256Hash": {
             "type": "string",
             "description": "SHA256 hash of the artifact file."
+          },
+          "hasSbom": {
+            "type": "boolean",
+            "description": "Whether the artifact has an SBOM attached."
+          },
+          "sbomFileSizeBytes": {
+            "type": "integer",
+            "description": "Size of the canonical stored SBOM JSON in bytes.",
+            "format": "int64",
+            "nullable": true
+          },
+          "sbomSha256Hash": {
+            "type": "string",
+            "description": "SHA256 hash of the canonical stored SBOM JSON.",
+            "nullable": true
+          },
+          "sbomFormat": {
+            "type": "string",
+            "description": "Stored SBOM format. Always json when an SBOM exists.",
+            "nullable": true
+          },
+          "sbomSpecVersion": {
+            "type": "string",
+            "description": "CycloneDX specification version of the canonical stored SBOM.",
+            "nullable": true
           },
           "retained": {
             "type": "boolean"

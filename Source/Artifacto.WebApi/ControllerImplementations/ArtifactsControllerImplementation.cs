@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,6 +27,7 @@ namespace Artifacto.WebApi.ControllerImplementations;
 public class ArtifactsControllerImplementation : IArtifactsController
 {
     private readonly ArtifactsRepository _artifactsRepository;
+    private readonly IArtifactSbomService _artifactSbomService;
     private readonly ProjectsRepository _projectsRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -39,14 +41,28 @@ public class ArtifactsControllerImplementation : IArtifactsController
 
     public ArtifactsControllerImplementation(
         ILogger<ArtifactsControllerImplementation> logger,
+        IArtifactSbomService artifactSbomService,
         ProjectsRepository projectsRepository,
         ArtifactsRepository artifactsRepository,
         IHttpContextAccessor httpContextAccessor)
     {
         _artifactsRepository = artifactsRepository;
+        _artifactSbomService = artifactSbomService;
         _projectsRepository = projectsRepository;
         _httpContextAccessor = httpContextAccessor;
         _logger = logger;
+    }
+
+    private static bool HasSbom(Artifact artifact)
+    {
+        return artifact.SbomFileSizeBytes.HasValue &&
+            artifact.SbomFileSizeBytes.Value > 0 &&
+            !string.IsNullOrWhiteSpace(artifact.SbomSha256Hash);
+    }
+
+    private static string? GetSbomFormat(Artifact artifact)
+    {
+        return HasSbom(artifact) ? "json" : null;
     }
 
     public async Task<IActionResult> DeleteArtifactAsync(string projectKey, string artifactVersion, CancellationToken cancellationToken = default)
@@ -135,6 +151,11 @@ public class ArtifactsControllerImplementation : IArtifactsController
             FileName = artifact.FileName,
             FileSizeBytes = (long?)artifact.FileSizeBytes,
             Sha256Hash = artifact.Sha256Hash,
+            HasSbom = HasSbom(artifact),
+            SbomFileSizeBytes = (long?)artifact.SbomFileSizeBytes,
+            SbomSha256Hash = artifact.SbomSha256Hash,
+            SbomFormat = GetSbomFormat(artifact),
+            SbomSpecVersion = artifact.SbomSpecVersion,
             Locked = artifact.Locked,
             Retained = artifact.Retained,
             Timestamp = artifact.Timestamp
@@ -162,6 +183,11 @@ public class ArtifactsControllerImplementation : IArtifactsController
             FileName = artifact.FileName,
             FileSizeBytes = (long?)artifact.FileSizeBytes,
             Sha256Hash = artifact.Sha256Hash,
+            HasSbom = HasSbom(artifact),
+            SbomFileSizeBytes = (long?)artifact.SbomFileSizeBytes,
+            SbomSha256Hash = artifact.SbomSha256Hash,
+            SbomFormat = GetSbomFormat(artifact),
+            SbomSpecVersion = artifact.SbomSpecVersion,
             Retained = artifact.Retained,
             Locked = artifact.Locked
         })
@@ -199,7 +225,10 @@ public class ArtifactsControllerImplementation : IArtifactsController
             Sha256Hash: string.Empty, // Will be calculated during file storage
             Timestamp: DateTime.UtcNow,
             Retained: false,
-            Locked: false
+            Locked: false,
+            SbomFileSizeBytes: null,
+            SbomSha256Hash: null,
+            SbomSpecVersion: null
         );
 
         await using Stream stream = file.OpenReadStream();
@@ -230,6 +259,11 @@ public class ArtifactsControllerImplementation : IArtifactsController
             FileName = createdArtifact.FileName,
             FileSizeBytes = (long?)createdArtifact.FileSizeBytes,
             Sha256Hash = createdArtifact.Sha256Hash,
+            HasSbom = HasSbom(createdArtifact),
+            SbomFileSizeBytes = (long?)createdArtifact.SbomFileSizeBytes,
+            SbomSha256Hash = createdArtifact.SbomSha256Hash,
+            SbomFormat = GetSbomFormat(createdArtifact),
+            SbomSpecVersion = createdArtifact.SbomSpecVersion,
             Retained = createdArtifact.Retained,
             Locked = createdArtifact.Locked
         };
@@ -300,5 +334,81 @@ public class ArtifactsControllerImplementation : IArtifactsController
     _logger.LogInformation("Updated artifact for project {ProjectKey} from version {OldVersion} to {NewVersion}", projectKey, artifact.Version.ToString(), proposedArtifact.Version.ToString());
 
         return new NoContentResult();
+    }
+
+    public async Task<IActionResult> PutArtifactSbomAsync(IFormFile body, string projectKey, string artifactVersion, CancellationToken cancellationToken = default)
+    {
+        HttpRequest request = _httpContextAccessor.HttpContext!.Request;
+        _logger.LogInformation("Request to upload SBOM for project {ProjectKey} version {ArtifactVersion} contentType {ContentType} contentLength {ContentLength}", projectKey, artifactVersion, request.ContentType, request.ContentLength);
+        if (!Version.TryParse(artifactVersion, out Version version))
+        {
+            _logger.LogWarning("Invalid artifact version format for project {ProjectKey} value {ArtifactVersion}", projectKey, artifactVersion);
+            return new BadRequestObjectResult(new ErrorResponse() { Message = "Invalid artifact version format." });
+        }
+
+        if (request.ContentLength == 0)
+        {
+            _logger.LogWarning("No SBOM uploaded or file is empty for project {ProjectKey} version {Version}", projectKey, version.ToString());
+            return new BadRequestObjectResult(new ErrorResponse() { Message = "No SBOM uploaded or file is empty." });
+        }
+
+        await using Stream uploadedStream = request.Body;
+        OneOf<CanonicalArtifactSbom, BadRequestError> normalizedSbomResponse = await _artifactSbomService.NormalizeAsync(uploadedStream, version.ToString(), request.ContentType, cancellationToken);
+        if (!normalizedSbomResponse.TryPickT0(out CanonicalArtifactSbom canonicalSbom, out BadRequestError badRequestError))
+        {
+            _logger.LogWarning("Invalid SBOM upload for project {ProjectKey} version {Version}: {Message}", projectKey, version.ToString(), badRequestError.Message);
+            return new BadRequestObjectResult(new ErrorResponse() { Message = badRequestError.Message });
+        }
+
+        await using MemoryStream canonicalSbomStream = new(canonicalSbom.Content, writable: false);
+        OneOf<Artifact, NotFoundError, BadRequestError> repositoryResponse = await _artifactsRepository.SetArtifactSbomAsync(projectKey, version, canonicalSbom.FileSizeBytes, canonicalSbom.SpecVersion, canonicalSbomStream, cancellationToken);
+        if (!repositoryResponse.TryPickT0(out Artifact _, out OneOf<NotFoundError, BadRequestError> error))
+        {
+            return error.Match<IActionResult>(
+                notFoundError =>
+                {
+                    _logger.LogInformation("Artifact not found while uploading SBOM for project {ProjectKey} version {Version}: {Message}", projectKey, version.ToString(), notFoundError.Message);
+                    return new NotFoundObjectResult(new ErrorResponse() { Message = notFoundError.Message });
+                },
+                badRequest =>
+                {
+                    _logger.LogWarning("Failed to persist SBOM for project {ProjectKey} version {Version}: {Message}", projectKey, version.ToString(), badRequest.Message);
+                    return new BadRequestObjectResult(new ErrorResponse() { Message = badRequest.Message });
+                });
+        }
+
+        return new NoContentResult();
+    }
+
+    public async Task<ActionResult<string>> GetArtifactSbomAsync(string format, string specVersion, string projectKey, string artifactVersion, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Request to download SBOM for project {ProjectKey} version {ArtifactVersion} format {Format} specVersion {SpecVersion}", projectKey, artifactVersion, format, specVersion);
+        if (!Version.TryParse(artifactVersion, out Version version))
+        {
+            _logger.LogWarning("Invalid artifact version format for project {ProjectKey} value {ArtifactVersion}", projectKey, artifactVersion);
+            return new BadRequestObjectResult(new ErrorResponse() { Message = "Invalid artifact version format." });
+        }
+
+        OneOf<Stream, NotFoundError> streamResponse = await _artifactsRepository.DownloadArtifactSbomAsync(projectKey, version, cancellationToken);
+        if (!streamResponse.TryPickT0(out Stream canonicalSbomStream, out NotFoundError notFoundError))
+        {
+            _logger.LogInformation("SBOM not found for project {ProjectKey} version {Version}: {Message}", projectKey, version.ToString(), notFoundError.Message);
+            return new NotFoundObjectResult(new ErrorResponse() { Message = notFoundError.Message });
+        }
+
+        await using Stream stream = canonicalSbomStream;
+        OneOf<GeneratedArtifactSbom, BadRequestError> generatedSbomResponse = await _artifactSbomService.GenerateDownloadAsync(stream, format, specVersion, cancellationToken);
+        if (!generatedSbomResponse.TryPickT0(out GeneratedArtifactSbom generatedSbom, out BadRequestError badRequestError))
+        {
+            _logger.LogWarning("Failed to generate SBOM download for project {ProjectKey} version {Version}: {Message}", projectKey, version.ToString(), badRequestError.Message);
+            return new BadRequestObjectResult(new ErrorResponse() { Message = badRequestError.Message });
+        }
+
+        return new ContentResult
+        {
+            Content = Encoding.UTF8.GetString(generatedSbom.Content),
+            ContentType = generatedSbom.ContentType,
+            StatusCode = StatusCodes.Status200OK
+        };
     }
 }

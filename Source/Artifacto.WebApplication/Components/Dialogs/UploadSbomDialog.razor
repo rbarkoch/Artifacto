@@ -1,0 +1,85 @@
+@namespace Artifacto.WebApplication.Components.Dialogs
+@using Microsoft.AspNetCore.Components.Forms
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="Icons.Material.Filled.Description" Class="mr-3 mb-n1" />
+            Upload SBOM
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudAlert Severity="Severity.Info" Dense="true">
+                Upload a CycloneDX SBOM in JSON or XML format. The server validates it and stores it canonically as JSON.
+            </MudAlert>
+
+            <MudTextField Value="@ArtifactVersion"
+                          Label="Artifact Version"
+                          Variant="Variant.Outlined"
+                          ReadOnly="true" />
+
+            <MudStack Spacing="2">
+                <MudButton HtmlTag="label"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="Icons.Material.Filled.UploadFile"
+                           for="sbomFileInput">
+                    Select SBOM File
+                </MudButton>
+                <InputFile id="sbomFileInput" OnChange="OnFileSelected" style="display: none;" />
+                @if (_selectedFile != null)
+                {
+                    <MudText Typo="Typo.body2">Selected: @_selectedFile.Name (@FormatFileSize(_selectedFile.Size))</MudText>
+                }
+            </MudStack>
+
+            @if (_isUploading)
+            {
+                <MudStack Spacing="2">
+                    <MudProgressLinear Color="Color.Primary"
+                                       Value="@_uploadProgress"
+                                       Buffer="false"
+                                       Striped="true"
+                                       Size="Size.Medium" />
+                    <MudText Typo="Typo.body2" Align="Align.Center">
+                        @_uploadStatus (@(_uploadProgress.ToString("F0"))%)
+                    </MudText>
+                </MudStack>
+            }
+
+            @if (_hasError)
+            {
+                <MudAlert Severity="Severity.Error">
+                    @_errorMessage
+                </MudAlert>
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        @if (_isUploading)
+        {
+            <MudButton OnClick="@(async () => await CancelUpload())"
+                       Color="Color.Error"
+                       Variant="Variant.Text">
+                Cancel Upload
+            </MudButton>
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       Disabled="true">
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Uploading...</MudText>
+            </MudButton>
+        }
+        else
+        {
+            <MudButton OnClick="@(async () => await Cancel())">Cancel</MudButton>
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       OnClick="@HandleSubmit"
+                       Disabled="@(_selectedFile == null)">
+                Upload SBOM
+            </MudButton>
+        }
+    </DialogActions>
+</MudDialog>

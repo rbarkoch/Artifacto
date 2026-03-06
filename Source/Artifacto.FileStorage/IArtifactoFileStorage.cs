@@ -35,6 +35,19 @@ public interface IArtifactoFileStorage
     Task<OneOf<SaveArtifactSuccess, BadRequestError>> SaveArtifactAsync(string projectKey, string artifactVersion, Stream artifactStream, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Saves the canonical JSON SBOM for the specified project and artifact version.
+    /// </summary>
+    /// <param name="projectKey">The unique identifier (key) of the project.</param>
+    /// <param name="artifactVersion">The version of the artifact whose SBOM is being saved.</param>
+    /// <param name="sbomStream">The stream containing the canonical JSON SBOM data.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>
+    /// A <see cref="Task"/> that represents the asynchronous operation, containing a <see cref="OneOf{SaveArtifactSuccess, BadRequestError}"/>
+    /// indicating either a successful save with hash information or a bad request error.
+    /// </returns>
+    Task<OneOf<SaveArtifactSuccess, BadRequestError>> SaveArtifactSbomAsync(string projectKey, string artifactVersion, Stream sbomStream, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Downloads an artifact for the specified project and version.
     /// </summary>
     /// <param name="projectKey">The unique identifier (key) of the project.</param>
@@ -45,6 +58,30 @@ public interface IArtifactoFileStorage
     /// indicating either the artifact stream, a bad request error, or a not found error.
     /// </returns>
     Task<OneOf<Stream, BadRequestError, NotFoundError>> DownloadArtifactAsync(string projectKey, string artifactVersion, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Downloads the canonical stored SBOM for the specified project and artifact version.
+    /// </summary>
+    /// <param name="projectKey">The unique identifier (key) of the project.</param>
+    /// <param name="artifactVersion">The version of the artifact whose SBOM should be downloaded.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>
+    /// A <see cref="Task"/> that represents the asynchronous operation, containing a <see cref="OneOf{Stream, BadRequestError, NotFoundError}"/>
+    /// indicating either the SBOM stream, a bad request error, or a not found error.
+    /// </returns>
+    Task<OneOf<Stream, BadRequestError, NotFoundError>> DownloadArtifactSbomAsync(string projectKey, string artifactVersion, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes the canonical stored SBOM for the specified project and artifact version.
+    /// </summary>
+    /// <param name="projectKey">The unique identifier (key) of the project.</param>
+    /// <param name="artifactVersion">The version of the artifact whose SBOM should be deleted.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>
+    /// A <see cref="Task"/> that represents the asynchronous operation, containing a <see cref="OneOf{Success, BadRequestError, NotFoundError}"/>
+    /// indicating either a successful delete, a bad request error, or a not found error.
+    /// </returns>
+    Task<OneOf<Success, BadRequestError, NotFoundError>> DeleteArtifactSbomAsync(string projectKey, string artifactVersion, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes an artifact for the specified project and version.

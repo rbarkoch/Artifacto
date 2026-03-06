@@ -3,7 +3,7 @@ window.artifactoUpload = {
     uploads: new Map(),
     currentId: 0,
 
-    uploadFile: function (fileInputId, url, dotNetRef, onProgressMethod, onCompleteMethod, onErrorMethod) {
+    uploadFile: function (fileInputId, url, dotNetRef, onProgressMethod, onCompleteMethod, onErrorMethod, method, sendRawBody) {
         console.log('=== UPLOAD START ===');
         console.log('URL:', url);
         console.log('File input ID:', fileInputId);
@@ -18,9 +18,6 @@ window.artifactoUpload = {
         const file = fileInput.files[0];
         console.log('File details:', { name: file.name, size: file.size, type: file.type });
         
-        const formData = new FormData();
-        formData.append('file', file);
-
         const xhr = new XMLHttpRequest();
         const uploadId = ++this.currentId;
         
@@ -81,9 +78,18 @@ window.artifactoUpload = {
 
         // Start the upload
         console.log('Opening connection to:', url);
-        xhr.open('POST', url, true);
-        console.log('Sending form data...');
-        xhr.send(formData);
+        xhr.open(method || 'POST', url, true);
+        if (sendRawBody) {
+            const contentType = file.type && file.type.length > 0 ? file.type : 'application/octet-stream';
+            xhr.setRequestHeader('Content-Type', contentType);
+            console.log('Sending raw file body...');
+            xhr.send(file);
+        } else {
+            const formData = new FormData();
+            formData.append('file', file);
+            console.log('Sending form data...');
+            xhr.send(formData);
+        }
 
         // Return upload ID for cancellation
         return uploadId.toString();
